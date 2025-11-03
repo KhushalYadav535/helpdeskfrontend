@@ -23,12 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { API_URL, getHeaders } from "@/lib/api-helpers"
 import { useSearchParams } from "next/navigation"
 
-export default function SuperAdminAgentsPage() {
+function SuperAdminAgentsContent() {
   const { user, token } = useAuth()
   const searchParams = useSearchParams()
   const [agents, setAgents] = useState<any[]>([])
@@ -525,6 +525,14 @@ export default function SuperAdminAgentsPage() {
         </Card>
       </div>
     </DashboardLayout>
+  )
+}
+
+export default function SuperAdminAgentsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <SuperAdminAgentsContent />
+    </Suspense>
   )
 }
 

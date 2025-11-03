@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
       from, // Phone number (e.g., "+919876543210")
       message,
       text,
-      body,
       media,
       contactName,
       timestamp,
