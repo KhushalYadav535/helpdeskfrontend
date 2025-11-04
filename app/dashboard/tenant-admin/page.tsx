@@ -49,7 +49,7 @@ export default function TenantAdminDashboard() {
             total: tickets.length,
             open: tickets.filter((t: any) => t.status === "Open").length,
             inProgress: tickets.filter((t: any) => t.status === "In Progress").length,
-            resolved: tickets.filter((t: any) => t.status === "Resolved").length,
+            resolved: tickets.filter((t: any) => t.status === "Resolved" || t.status === "Closed").length,
             highPriority: tickets.filter(
               (t: any) => t.priority === "High" || t.priority === "Critical"
             ).length,

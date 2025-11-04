@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { API_URL, getHeaders } from "@/lib/api-helpers"
+import { useAuth } from "@/lib/auth-context"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -20,6 +22,8 @@ interface Ticket {
   updated: string
   category: string
   responses: number
+  // Allow backend fields passthrough
+  _id?: string
 }
 
 interface TicketDetailModalProps {
@@ -29,7 +33,13 @@ interface TicketDetailModalProps {
 }
 
 export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailModalProps) {
+  const { user } = useAuth()
   const [newComment, setNewComment] = useState("")
+  const [closing, setClosing] = useState(false)
+  const [resolving, setResolving] = useState(false)
+  const [reopening, setReopening] = useState(false)
+  const [canReopen, setCanReopen] = useState(false)
+  const [agentLevel, setAgentLevel] = useState<string | null>(null)
   const [comments, setComments] = useState([
     {
       id: 1,
@@ -40,6 +50,53 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
       avatar: "AJ",
     },
   ])
+
+  // Check if user can reopen tickets (admin or supervisor)
+  useEffect(() => {
+    const checkReopenPermission = async () => {
+      if (!user) {
+        setCanReopen(false)
+        return
+      }
+
+      // Tenant Admin or Super Admin can always reopen
+      if (user.role === "tenant-admin" || user.role === "super-admin") {
+        setCanReopen(true)
+        return
+      }
+
+      // For agents, check if they are supervisor
+      if (user.role === "agent") {
+        try {
+          // Get all agents for the tenant and find the current user's agent record
+          const response = await fetch(`${API_URL}/agents${user.tenantId ? `?tenantId=${user.tenantId}` : ''}`, {
+            headers: getHeaders(true),
+          })
+          const result = await response.json()
+          if (result.success && result.data && result.data.length > 0) {
+            // The backend returns agents with userId populated, but we need to match by the user's id
+            // Since the backend returns userId as a populated object, we need to check differently
+            // For now, we'll check if the user's email matches any agent's email
+            const agent = result.data.find((a: any) => {
+              // Try matching by email as a fallback since userId might be populated
+              return a.email === user.email
+            })
+            if (agent) {
+              const level = agent.agentLevel || "agent"
+              setAgentLevel(level)
+              // Supervisor can reopen
+              setCanReopen(level === "supervisor")
+            }
+          }
+        } catch (error) {
+          console.error("Error checking agent level:", error)
+          setCanReopen(false)
+        }
+      }
+    }
+
+    checkReopenPermission()
+  }, [user])
 
   if (!ticket) return null
 
@@ -54,6 +111,102 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
     Open: "bg-blue-100 text-blue-800",
     "In Progress": "bg-purple-100 text-purple-800",
     Resolved: "bg-green-100 text-green-800",
+    Closed: "bg-gray-200 text-gray-700",
+  }
+
+  const handleResolveTicket = async () => {
+    if (!ticket) return
+    const mongoId = (ticket as any)._id
+    if (!mongoId) {
+      alert("Cannot resolve: ticket id is missing.")
+      return
+    }
+    try {
+      setResolving(true)
+      // Resolve ticket - backend will automatically set resolvedBy and resolvedAt
+      // Then immediately close it
+      const resolveRes = await fetch(`${API_URL}/tickets/${mongoId}`, {
+        method: "PUT",
+        headers: getHeaders(true),
+        body: JSON.stringify({ status: "Resolved" }),
+      })
+      const resolveResult = await resolveRes.json()
+      if (!resolveResult.success) {
+        throw new Error(resolveResult.error || "Failed to resolve ticket")
+      }
+      
+      // Automatically close the resolved ticket
+      const closeRes = await fetch(`${API_URL}/tickets/${mongoId}`, {
+        method: "PUT",
+        headers: getHeaders(true),
+        body: JSON.stringify({ status: "Closed" }),
+      })
+      const closeResult = await closeRes.json()
+      if (!closeResult.success) {
+        throw new Error(closeResult.error || "Failed to close ticket")
+      }
+      
+      // Simple approach: refresh to reflect latest status
+      window.location.reload()
+    } catch (e: any) {
+      alert(e.message || "Failed to resolve ticket")
+    } finally {
+      setResolving(false)
+    }
+  }
+
+  const handleCloseTicket = async () => {
+    if (!ticket) return
+    const mongoId = (ticket as any)._id
+    if (!mongoId) {
+      alert("Cannot close: ticket id is missing.")
+      return
+    }
+    try {
+      setClosing(true)
+      const res = await fetch(`${API_URL}/tickets/${mongoId}`, {
+        method: "PUT",
+        headers: getHeaders(true),
+        body: JSON.stringify({ status: "Closed" }),
+      })
+      const result = await res.json()
+      if (!result.success) {
+        throw new Error(result.error || "Failed to close ticket")
+      }
+      // Simple approach: refresh to reflect latest status
+      window.location.reload()
+    } catch (e: any) {
+      alert(e.message || "Failed to close ticket")
+    } finally {
+      setClosing(false)
+    }
+  }
+
+  const handleReopenTicket = async () => {
+    if (!ticket) return
+    const mongoId = (ticket as any)._id
+    if (!mongoId) {
+      alert("Cannot reopen: ticket id is missing.")
+      return
+    }
+    try {
+      setReopening(true)
+      const res = await fetch(`${API_URL}/tickets/${mongoId}`, {
+        method: "PUT",
+        headers: getHeaders(true),
+        body: JSON.stringify({ status: "Open" }),
+      })
+      const result = await res.json()
+      if (!result.success) {
+        throw new Error(result.error || "Failed to reopen ticket")
+      }
+      // Simple approach: refresh to reflect latest status
+      window.location.reload()
+    } catch (e: any) {
+      alert(e.message || "Failed to reopen ticket")
+    } finally {
+      setReopening(false)
+    }
   }
 
   const handleAddComment = () => {
@@ -172,6 +325,72 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
               </div>
             </TabsContent>
           </Tabs>
+
+          <div className="pt-2 space-y-2">
+            {ticket.status === "Closed" ? (
+              // Closed tickets: Only reopen option (if permission)
+              canReopen ? (
+                <Button
+                  onClick={handleReopenTicket}
+                  disabled={reopening}
+                  className="w-full"
+                  variant="default"
+                >
+                  {reopening ? "Reopening..." : "Reopen Ticket"}
+                </Button>
+              ) : (
+                <Button
+                  disabled
+                  className="w-full"
+                  variant="outline"
+                >
+                  Ticket Closed
+                </Button>
+              )
+            ) : ticket.status === "Resolved" ? (
+              // Resolved tickets: Can be closed or reopened
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleCloseTicket}
+                  disabled={closing}
+                  className="flex-1"
+                  variant="default"
+                >
+                  {closing ? "Closing..." : "Close Ticket"}
+                </Button>
+                {canReopen && (
+                  <Button
+                    onClick={handleReopenTicket}
+                    disabled={reopening}
+                    className="flex-1"
+                    variant="outline"
+                  >
+                    {reopening ? "Reopening..." : "Reopen Ticket"}
+                  </Button>
+                )}
+              </div>
+            ) : (
+              // Open/In Progress tickets: Can be resolved or closed
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleResolveTicket}
+                  disabled={resolving}
+                  className="flex-1"
+                  variant="default"
+                >
+                  {resolving ? "Resolving..." : "Resolve Ticket"}
+                </Button>
+                <Button
+                  onClick={handleCloseTicket}
+                  disabled={closing}
+                  className="flex-1"
+                  variant="outline"
+                >
+                  {closing ? "Closing..." : "Close Ticket"}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -3,7 +3,7 @@
 import { DashboardLayout } from "@/components/dashboard/layout"
 import { Ticket, BarChart3, TrendingUp, Settings, Target, Clock, Award, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { API_URL, getHeaders } from "@/lib/api-helpers"
 
@@ -167,11 +167,17 @@ export default function PerformancePage() {
     fetchPerformance()
   }, [user?.tenantId, token, user?.email])
 
-  const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" })
-  const lastMonth = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  })
+  // Use useMemo to calculate dates on client side only
+  const currentMonth = useMemo(() => {
+    return new Date().toLocaleString("default", { month: "long", year: "numeric" })
+  }, [])
+
+  const lastMonth = useMemo(() => {
+    return new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    })
+  }, [])
 
   return (
     <DashboardLayout

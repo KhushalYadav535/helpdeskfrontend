@@ -75,6 +75,8 @@ export default function TicketsPage() {
         return "bg-purple-500/20 text-purple-400"
       case "Resolved":
         return "bg-green-500/20 text-green-400"
+      case "Closed":
+        return "bg-gray-500/20 text-gray-400"
       default:
         return "bg-gray-500/20 text-gray-400"
     }
@@ -134,11 +136,15 @@ export default function TicketsPage() {
                         <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(ticket.status)}`}>
                           {ticket.status}
                         </span>
+                        {ticket.source && (
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-accent/10 text-accent">
+                            {ticket.source}
+                          </span>
+                        )}
                       </div>
                       <p className="font-medium">{ticket.title}</p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {(ticket.tenantId as any)?.name || "Unknown Tenant"} • Created{" "}
-                        {new Date(ticket.created || ticket.createdAt).toLocaleDateString()}
+                        {(ticket.tenantId as any)?.name || "Unknown Tenant"} • Agent: {(ticket.agentId as any)?.name || "Unassigned"} • {new Date(ticket.created || ticket.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>

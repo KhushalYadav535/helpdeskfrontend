@@ -8,18 +8,25 @@ import { Button } from "@/components/ui/button"
 import { TicketDetailModal } from "./ticket-detail-modal"
 
 interface Ticket {
-  id: string
-  title: string
-  description: string
-  status: string
-  priority: string
-  tenant: string
-  agent: string
-  customer: string
-  created: string
-  updated: string
-  category: string
-  responses: number
+  id?: string
+  ticketId?: string
+  _id?: string
+  title?: string
+  subject?: string
+  description?: string
+  status?: string
+  priority?: string
+  tenant?: string
+  tenantId?: any
+  agent?: string
+  agentId?: any
+  customer?: string
+  created?: string
+  createdAt?: string
+  updated?: string
+  updatedAt?: string
+  category?: string
+  responses?: number
 }
 
 interface TicketListProps {
@@ -35,10 +42,14 @@ export function TicketListWithSearch({ tickets }: TicketListProps) {
 
   const filteredTickets = useMemo(() => {
     return tickets.filter((ticket) => {
+      const ticketId = ticket.ticketId || ticket.id || (ticket._id ? ticket._id.toString() : "")
+      const title = ticket.title || ticket.subject || ""
+      const customer = ticket.customer || ""
+      
       const matchesSearch =
-        ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.customer.toLowerCase().includes(searchTerm.toLowerCase())
+        title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.toLowerCase().includes(searchTerm.toLowerCase())
 
       const matchesStatus = statusFilter === "all" || ticket.status === statusFilter
       const matchesPriority = priorityFilter === "all" || ticket.priority === priorityFilter
@@ -63,6 +74,7 @@ export function TicketListWithSearch({ tickets }: TicketListProps) {
     Open: "bg-blue-100 text-blue-800",
     "In Progress": "bg-purple-100 text-purple-800",
     Resolved: "bg-green-100 text-green-800",
+    Closed: "bg-gray-200 text-gray-700",
   }
 
   return (
@@ -86,6 +98,7 @@ export function TicketListWithSearch({ tickets }: TicketListProps) {
             <SelectItem value="Open">Open</SelectItem>
             <SelectItem value="In Progress">In Progress</SelectItem>
             <SelectItem value="Resolved">Resolved</SelectItem>
+            <SelectItem value="Closed">Closed</SelectItem>
           </SelectContent>
         </Select>
 
@@ -107,28 +120,53 @@ export function TicketListWithSearch({ tickets }: TicketListProps) {
         {filteredTickets.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">No tickets found</div>
         ) : (
-          filteredTickets.map((ticket) => (
-            <Button
-              key={ticket.id}
-              variant="outline"
-              className="w-full justify-start h-auto py-3 px-4 bg-transparent"
-              onClick={() => handleTicketClick(ticket)}
-            >
-              <div className="flex-1 text-left space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm font-semibold">{ticket.id}</span>
-                  <Badge className={priorityColor[ticket.priority as keyof typeof priorityColor]}>
-                    {ticket.priority}
-                  </Badge>
-                  <Badge className={statusColor[ticket.status as keyof typeof statusColor]}>{ticket.status}</Badge>
+          filteredTickets.map((ticket, index) => {
+            const ticketId = ticket.ticketId || ticket.id || (ticket._id ? ticket._id.toString() : "")
+            const uniqueKey = ticket._id?.toString() || ticket.id || ticket.ticketId || `ticket-${index}`
+            
+            return (
+              <Button
+                key={uniqueKey}
+                variant="outline"
+                className="w-full justify-start h-auto py-3 px-4 bg-transparent"
+                onClick={() => {
+                  // Transform ticket data for modal
+                  const modalTicket = {
+                    id: ticketId,
+                    title: ticket.title || ticket.subject || "",
+                    description: ticket.description || "",
+                    status: ticket.status || "Open",
+                    priority: ticket.priority || "Medium",
+                    tenant: (ticket.tenantId as any)?.name || ticket.tenant || "Unknown",
+                    agent: (ticket.agentId as any)?.name || ticket.agent || "Unassigned",
+                    customer: ticket.customer || "Unknown",
+                    created: ticket.created || ticket.createdAt || "",
+                    updated: ticket.updated || ticket.updatedAt || "",
+                    category: ticket.category || "general",
+                    responses: ticket.responses || 0,
+                    _id: ticket._id?.toString() || ticket.id,
+                  }
+                  handleTicketClick(modalTicket as any)
+                }}
+              >
+                <div className="flex-1 text-left space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm font-semibold">{ticketId}</span>
+                    <Badge className={priorityColor[(ticket.priority || "Medium") as keyof typeof priorityColor]}>
+                      {ticket.priority || "Medium"}
+                    </Badge>
+                    <Badge className={statusColor[(ticket.status || "Open") as keyof typeof statusColor]}>
+                      {ticket.status || "Open"}
+                    </Badge>
+                  </div>
+                  <p className="text-sm">{ticket.title || ticket.subject || "No title"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {ticket.customer || "Unknown"} • {(ticket.agentId as any)?.name || ticket.agent || "Unassigned"}
+                  </p>
                 </div>
-                <p className="text-sm">{ticket.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {ticket.customer} • {ticket.agent}
-                </p>
-              </div>
-            </Button>
-          ))
+              </Button>
+            )
+          })
         )}
       </div>
 

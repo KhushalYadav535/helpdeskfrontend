@@ -82,7 +82,7 @@ export default function AgentDashboard() {
           // Calculate stats
           const today = new Date().toISOString().split("T")[0]
           const resolvedToday = result.data.filter(
-            (t: any) => t.status === "Resolved" && t.updated && t.updated.split("T")[0] === today
+            (t: any) => (t.status === "Resolved" || t.status === "Closed") && t.updated && t.updated.split("T")[0] === today
           ).length
 
           setStats({

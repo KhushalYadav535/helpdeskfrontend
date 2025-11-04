@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${_geist.className} antialiased`}>
+      <body className={`${_geist.className} antialiased`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="helpdesk-theme">
           <AuthProvider>
             {children}

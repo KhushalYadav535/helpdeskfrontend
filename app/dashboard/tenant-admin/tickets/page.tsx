@@ -8,12 +8,15 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { Badge } from "@/components/ui/badge"
 import { API_URL, getHeaders } from "@/lib/api-helpers"
+import { TicketDetailModal } from "@/components/tickets/ticket-detail-modal"
 
 export default function TicketsPage() {
   const { user, token } = useAuth()
   const [tickets, setTickets] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState(new Date())
+  const [selectedTicket, setSelectedTicket] = useState<any>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   const sidebarItems = [
     { label: "Overview", href: "/dashboard/tenant-admin", icon: <BarChart3 className="h-5 w-5" /> },
@@ -166,12 +169,32 @@ export default function TicketsPage() {
               <div className="space-y-3">
                 {tickets.map((ticket) => (
                   <div
-                    key={ticket.id}
+                    key={ticket._id || ticket.id || ticket.ticketId}
+                    onClick={() => {
+                      // Transform ticket data for modal
+                      const modalTicket = {
+                        id: ticket.ticketId || ticket.id || ticket._id?.toString(),
+                        title: ticket.title || ticket.subject || "",
+                        description: ticket.description || "",
+                        status: ticket.status || "Open",
+                        priority: ticket.priority || "Medium",
+                        tenant: (ticket.tenantId as any)?.name || "Unknown",
+                        agent: (ticket.agentId as any)?.name || ticket.agent || "Unassigned",
+                        customer: ticket.customer || "Unknown",
+                        created: ticket.created || ticket.createdAt || "",
+                        updated: ticket.updated || ticket.updatedAt || "",
+                        category: ticket.category || "general",
+                        responses: ticket.responses || 0,
+                        _id: ticket._id?.toString() || ticket.id,
+                      }
+                      setSelectedTicket(modalTicket)
+                      setModalOpen(true)
+                    }}
                     className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent/5 transition-colors cursor-pointer"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="font-mono text-sm font-semibold text-accent">{ticket.id}</span>
+                        <span className="font-mono text-sm font-semibold text-accent">{ticket.ticketId || ticket.id || (ticket._id ? ticket._id.toString().substring(0,8) : "")}</span>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
                           {ticket.priority}
                         </span>
@@ -187,7 +210,7 @@ export default function TicketsPage() {
                       </div>
                       <p className="font-medium">{ticket.title || ticket.subject}</p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {ticket.customer} • {ticket.agent || "Unassigned"} • {ticket.created}
+                        {ticket.customer} • {(ticket.agentId as any)?.name || ticket.agent || "Unassigned"} • {new Date(ticket.created || ticket.createdAt).toLocaleDateString()}
                       </p>
                       {ticket.customerPhone && (
                         <p className="text-xs text-muted-foreground mt-1">📞 {ticket.customerPhone}</p>
@@ -199,6 +222,19 @@ export default function TicketsPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Ticket Detail Modal */}
+        <TicketDetailModal 
+          ticket={selectedTicket} 
+          open={modalOpen} 
+          onOpenChange={(open) => {
+            setModalOpen(open)
+            if (!open) {
+              // Refresh tickets when modal closes (in case ticket was closed)
+              fetchTickets()
+            }
+          }} 
+        />
       </div>
     </DashboardLayout>
   )

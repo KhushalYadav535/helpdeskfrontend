@@ -127,7 +127,7 @@ export default function CustomerDashboard() {
               <CheckCircle2 className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{myTickets.filter((t) => t.status === "Resolved").length}</div>
+              <div className="text-2xl font-bold">{myTickets.filter((t) => t.status === "Resolved" || t.status === "Closed").length}</div>
               <p className="text-xs text-muted-foreground">Completed</p>
             </CardContent>
           </Card>
