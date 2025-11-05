@@ -34,9 +34,15 @@ export default function SettingsPage() {
 
   // Load tenant data and webhook token
   useEffect(() => {
-    // Get base URL
-    const url = typeof window !== "undefined" ? window.location.origin : ""
-    setBaseUrl(url)
+    // Get backend base URL (use API_URL origin, not frontend origin)
+    try {
+      const backendOrigin = new URL(API_URL).origin
+      setBaseUrl(backendOrigin)
+    } catch {
+      // Fallback: strip trailing /api if present
+      const fallback = (API_URL || "").replace(/\/api$/, "")
+      setBaseUrl(fallback)
+    }
     
     // Fetch tenant info to populate settings
     const fetchTenantInfo = async () => {
