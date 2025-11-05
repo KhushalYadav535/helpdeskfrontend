@@ -124,10 +124,22 @@ export default function SettingsPage() {
         icon: <Phone className="h-4 w-4" />,
       },
       {
+        name: "Email",
+        url: `${baseWebhookUrl}/email`,
+        description: "For incoming email webhooks",
+        icon: <Mail className="h-4 w-4" />,
+      },
+      {
         name: "Contact Form",
         url: `${baseWebhookUrl}/contact-form`,
         description: "For website contact forms",
         icon: <Mail className="h-4 w-4" />,
+      },
+      {
+        name: "Slack",
+        url: `${baseWebhookUrl}/slack`,
+        description: "For Slack channel messages",
+        icon: <MessageSquare className="h-4 w-4" />,
       },
       {
         name: "Chatbot",
