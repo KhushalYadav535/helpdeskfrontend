@@ -46,7 +46,7 @@ export default function Home() {
   ]
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background" suppressHydrationWarning>
       {/* Navigation */}
       <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-sm border-b border-border z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
@@ -107,8 +107,8 @@ export default function Home() {
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-card/30 border-y border-border">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
-              <div key={i} className="text-center">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center" suppressHydrationWarning>
                 <div className="text-3xl font-bold text-accent mb-2">{stat.value}</div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
@@ -127,10 +127,10 @@ export default function Home() {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) => {
+            {features.map((feature) => {
               const Icon = feature.icon
               return (
-                <Card key={i} className="border-border/50 hover:border-accent/50 transition-colors">
+                <Card key={feature.title} className="border-border/50 hover:border-accent/50 transition-colors">
                   <CardHeader>
                     <Icon className="w-8 h-8 text-accent mb-2" />
                     <CardTitle className="text-lg">{feature.title}</CardTitle>
@@ -164,8 +164,8 @@ export default function Home() {
                 description: "Scalable support infrastructure that grows with your business.",
                 points: ["API Access", "Webhooks", "Custom Fields"],
               },
-            ].map((useCase, i) => (
-              <Card key={i} className="border-border/50">
+            ].map((useCase) => (
+              <Card key={useCase.title} className="border-border/50">
                 <CardHeader>
                   <CardTitle>{useCase.title}</CardTitle>
                   <CardDescription>{useCase.description}</CardDescription>

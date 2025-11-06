@@ -40,16 +40,8 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
   const [reopening, setReopening] = useState(false)
   const [canReopen, setCanReopen] = useState(false)
   const [agentLevel, setAgentLevel] = useState<string | null>(null)
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      author: "Alice Johnson",
-      role: "Agent",
-      text: "I'm looking into this issue now.",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      avatar: "AJ",
-    },
-  ])
+  const [comments, setComments] = useState<any[]>([])
+  const [loadingComments, setLoadingComments] = useState(false)
 
   // Check if user can reopen tickets (admin or supervisor)
   useEffect(() => {
@@ -97,6 +89,54 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
 
     checkReopenPermission()
   }, [user])
+
+  // Fetch comments when ticket changes
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!ticket) {
+        setComments([])
+        return
+      }
+
+      const ticketId = (ticket as any)._id || ticket.id
+      if (!ticketId) {
+        setComments([])
+        return
+      }
+
+      try {
+        setLoadingComments(true)
+        const response = await fetch(`${API_URL}/comments/${ticketId}`, {
+          headers: getHeaders(true),
+        })
+        const result = await response.json()
+
+        if (result.success && result.data) {
+          // Transform backend comments to frontend format
+          const transformedComments = result.data.map((comment: any) => ({
+            id: comment.id,
+            author: comment.author || "Unknown",
+            role: comment.role || "Agent",
+            text: comment.text || "",
+            timestamp: new Date(comment.timestamp || comment.createdAt),
+            avatar: (comment.author || "U").substring(0, 2).toUpperCase(),
+          }))
+          setComments(transformedComments)
+        } else {
+          setComments([])
+        }
+      } catch (error) {
+        console.error("Error fetching comments:", error)
+        setComments([])
+      } finally {
+        setLoadingComments(false)
+      }
+    }
+
+    if (open && ticket) {
+      fetchComments()
+    }
+  }, [ticket, open])
 
   if (!ticket) return null
 
@@ -209,20 +249,42 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
     }
   }
 
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      setComments([
-        ...comments,
-        {
-          id: comments.length + 1,
-          author: "You",
-          role: "Agent",
-          text: newComment,
-          timestamp: new Date(),
-          avatar: "YO",
-        },
-      ])
-      setNewComment("")
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !ticket) return
+
+    const ticketId = (ticket as any)._id || ticket.id
+    if (!ticketId) {
+      alert("Cannot add comment: ticket ID is missing.")
+      return
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/comments/${ticketId}`, {
+        method: "POST",
+        headers: getHeaders(true),
+        body: JSON.stringify({ text: newComment }),
+      })
+
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        // Add new comment to list
+        const newCommentData = {
+          id: result.data.id,
+          author: result.data.author || user?.name || "You",
+          role: result.data.role || "Agent",
+          text: result.data.text,
+          timestamp: new Date(result.data.timestamp || result.data.createdAt),
+          avatar: (result.data.author || "U").substring(0, 2).toUpperCase(),
+        }
+        setComments([...comments, newCommentData])
+        setNewComment("")
+      } else {
+        throw new Error(result.error || "Failed to add comment")
+      }
+    } catch (error: any) {
+      console.error("Error adding comment:", error)
+      alert(error.message || "Failed to add comment. Please try again.")
     }
   }
 
@@ -270,7 +332,12 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
 
             <TabsContent value="comments" className="space-y-4">
               <div className="space-y-4 max-h-64 overflow-y-auto">
-                {comments.map((comment) => (
+                {loadingComments ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">Loading comments...</p>
+                ) : comments.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">No comments yet. Be the first to comment!</p>
+                ) : (
+                  comments.map((comment) => (
                   <div key={comment.id} className="border-l-2 border-primary pl-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -288,7 +355,8 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
                     </div>
                     <p className="text-sm mt-2">{comment.text}</p>
                   </div>
-                ))}
+                  ))
+                )}
               </div>
 
               <div className="space-y-2">
