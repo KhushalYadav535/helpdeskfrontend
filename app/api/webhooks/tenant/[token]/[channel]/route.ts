@@ -86,11 +86,12 @@ export async function POST(
         ticketData = {
           ...ticketData,
           title: body.subject || `New ${channel} message from ${body.name || body.customerName || "Customer"}`,
-          description: body.message || body.text || body.body || "",
+          description: body.description || body.message || body.text || body.body || "",
           customer: body.name || body.customerName || body.email || "Customer",
           customerEmail: body.email || body.customerEmail,
           customerPhone: body.phone || body.customerPhone,
           priority: body.priority || "Medium",
+          category: body.category || "general",
           metadata: {
             submittedAt: new Date().toISOString(),
           },
@@ -110,9 +111,9 @@ export async function POST(
         }
     }
     
-    if (!ticketData.description && !ticketData.title) {
+    if (!ticketData.description || ticketData.description.trim() === "") {
       return NextResponse.json(
-        { success: false, error: "Message or subject is required" },
+        { success: false, error: "Description is required" },
         { status: 400 }
       )
     }
