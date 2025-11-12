@@ -74,9 +74,11 @@ export default function NewTicketPage() {
                     className="mt-2 w-full px-3 py-2 rounded-lg border border-border bg-input text-foreground"
                   >
                     <option value="general">General Inquiry</option>
+                    <option value="account">Account</option>
                     <option value="billing">Billing</option>
                     <option value="technical">Technical Support</option>
                     <option value="feature">Feature Request</option>
+                    <option value="bug">Bug Report</option>
                   </select>
                 </div>
 
