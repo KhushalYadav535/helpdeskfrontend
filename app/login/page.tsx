@@ -139,29 +139,6 @@ export default function LoginPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Demo Info */}
-        <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-          <p className="text-xs text-muted-foreground mb-3">Try demo accounts:</p>
-          <div className="space-y-2 text-xs">
-            <div>
-              <p className="font-medium text-foreground">Super Admin</p>
-              <p className="text-muted-foreground">admin@helpdesk.com / demo123</p>
-            </div>
-            <div>
-              <p className="font-medium text-foreground">Tenant Admin</p>
-              <p className="text-muted-foreground">tenant@helpdesk.com / demo123</p>
-            </div>
-            <div>
-              <p className="font-medium text-foreground">Agent</p>
-              <p className="text-muted-foreground">agent@helpdesk.com / demo123</p>
-            </div>
-            <div>
-              <p className="font-medium text-foreground">Customer</p>
-              <p className="text-muted-foreground">customer@helpdesk.com / demo123</p>
-            </div>
-          </div>
-        </div>
       </div>
     </main>
   )

@@ -73,15 +73,6 @@ export function LoginForm() {
             Sign up
           </Link>
         </div>
-
-        <div className="border-t pt-4">
-          <p className="text-xs text-muted-foreground mb-2">Demo credentials:</p>
-          <p className="text-xs">admin@helpdesk.com (super-admin)</p>
-          <p className="text-xs">tenant@helpdesk.com (tenant-admin)</p>
-          <p className="text-xs">agent@helpdesk.com (agent)</p>
-          <p className="text-xs">customer@helpdesk.com (customer)</p>
-          <p className="text-xs mt-2">Password: demo123</p>
-        </div>
       </form>
     </Card>
   )

@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Ticket, BarChart3, TrendingUp, Settings, Clock, CheckCircle2, Users } from "lucide-react"
+import { Ticket, BarChart3, TrendingUp, Settings, Clock, CheckCircle2, Users, Plus } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -26,6 +26,7 @@ export default function AgentDashboard() {
   const sidebarItems = [
     { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: myTickets.length },
     { label: "All Tickets", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
+    { label: "Create Ticket", href: "/dashboard/agent/new", icon: <Plus className="h-5 w-5" /> },
     { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
     ...(isSupervisor ? [{ label: "Team Management", href: "/dashboard/agent/team", icon: <Users className="h-5 w-5" /> }] : []),
     { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
