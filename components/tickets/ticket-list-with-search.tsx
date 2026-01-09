@@ -142,6 +142,7 @@ export function TicketListWithSearch({ tickets }: TicketListProps) {
                     customer: ticket.customer || "Unknown",
                     created: ticket.created || ticket.createdAt || "",
                     updated: ticket.updated || ticket.updatedAt || "",
+                    assignedAt: (ticket as any).assignedAt || "",
                     category: ticket.category || "general",
                     responses: ticket.responses || 0,
                     _id: ticket._id?.toString() || ticket.id,

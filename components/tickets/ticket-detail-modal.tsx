@@ -20,6 +20,7 @@ interface Ticket {
   customer: string
   created: string
   updated: string
+  assignedAt?: string
   category: string
   responses: number
   // Allow backend fields passthrough
@@ -321,6 +322,42 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
             <div>
               <p className="text-xs text-muted-foreground">Assigned Agent</p>
               <p className="text-sm font-medium">{ticket.agent}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Created</p>
+              <p className="text-sm font-medium">
+                {ticket.created
+                  ? new Date(ticket.created).toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Assigned At</p>
+              <p className="text-sm font-medium">
+                {(ticket as any).assignedAt
+                  ? new Date((ticket as any).assignedAt).toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ticket.agent && ticket.agent !== "Unassigned" && ticket.updated
+                  ? new Date(ticket.updated).toLocaleString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "Not assigned"}
+              </p>
             </div>
           </div>
 

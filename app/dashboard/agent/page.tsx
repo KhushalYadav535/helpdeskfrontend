@@ -247,7 +247,23 @@ export default function AgentDashboard() {
                       </div>
                       <p className="font-medium">{ticket.title || ticket.subject}</p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {ticket.customer} • {ticket.created ? new Date(ticket.created).toLocaleDateString() : "N/A"}
+                        {ticket.customer} • Assigned: {ticket.assignedAt 
+                          ? new Date(ticket.assignedAt).toLocaleString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : ticket.updated && ticket.agentId
+                          ? new Date(ticket.updated).toLocaleString("en-US", {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "N/A"}
                       </p>
                     </div>
                     <span className="text-sm text-muted-foreground">
