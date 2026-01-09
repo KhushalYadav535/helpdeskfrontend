@@ -382,10 +382,28 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
                   <span className="font-medium">Tenant:</span> {ticket.tenant}
                 </p>
                 <p>
-                  <span className="font-medium">Created:</span> {ticket.created}
+                  <span className="font-medium">Created:</span>{" "}
+                  {ticket.created
+                    ? new Date(ticket.created).toLocaleString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "N/A"}
                 </p>
                 <p>
-                  <span className="font-medium">Last Updated:</span> {ticket.updated}
+                  <span className="font-medium">Last Updated:</span>{" "}
+                  {ticket.updated
+                    ? new Date(ticket.updated).toLocaleString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Responses:</span> {ticket.responses}

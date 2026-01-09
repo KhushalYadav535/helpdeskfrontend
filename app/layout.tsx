@@ -10,7 +10,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Helpdesk Management System",
+  title: "RezolvX - Helpdesk Management System",
   description: "Multi-tenant helpdesk platform",
   generator: "v0.app",
 }

@@ -59,7 +59,7 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent" />
-            <span className="font-bold text-lg">Helpdesk Pro</span>
+            <span className="font-bold text-lg">RezolvX</span>
           </div>
         </div>
 
@@ -93,7 +93,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link href="#" className="text-xs text-accent hover:text-accent/80">
+                  <Link href="/forgot-password" className="text-xs text-accent hover:text-accent/80">
                     Forgot password?
                   </Link>
                 </div>

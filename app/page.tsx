@@ -52,7 +52,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent" />
-            <span className="font-bold text-lg">Helpdesk Pro</span>
+            <span className="font-bold text-lg">RezolvX</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition">
@@ -191,7 +191,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-12">
           <h2 className="text-4xl font-bold mb-4 text-balance">Ready to transform your support?</h2>
           <p className="text-lg text-muted-foreground mb-8">
-            Join thousands of teams already using Helpdesk Pro to deliver world-class customer support.
+            Join thousands of teams already using RezolvX to deliver world-class customer support.
           </p>
           <Link href="/signup">
             <Button size="lg">Start Your Free Trial</Button>
@@ -202,7 +202,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-border py-12 px-4 sm:px-6 lg:px-8 bg-card/30">
         <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 Helpdesk Pro. All rights reserved.</p>
+          <p>&copy; 2025 RezolvX. All rights reserved.</p>
         </div>
       </footer>
     </main>

@@ -19,7 +19,7 @@ export default function SettingsPage() {
   ]
 
   const [settings, setSettings] = useState({
-    systemName: "Helpdesk System",
+    systemName: "RezolvX",
     maxTenantsPerInstance: "100",
     defaultTicketTimeout: "72",
     emailNotifications: true,
