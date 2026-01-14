@@ -29,12 +29,12 @@ export function TopNav({ userName = "User", notificationCount = 0 }: TopNavProps
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Theme Toggle */}
           <ThemeToggle />
 
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" className="relative flex-shrink-0">
             <Bell className="h-5 w-5" />
             {notificationCount > 0 && (
               <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
@@ -44,9 +44,9 @@ export function TopNav({ userName = "User", notificationCount = 0 }: TopNavProps
           </Button>
 
           {/* User Profile */}
-          <Button variant="ghost" size="icon" className="gap-2">
-            <User className="h-5 w-5" />
-            <span className="hidden sm:inline text-sm">{userName}</span>
+          <Button variant="ghost" className="gap-2 px-2 sm:px-3 min-w-0">
+            <User className="h-5 w-5 flex-shrink-0" />
+            <span className="hidden sm:inline text-sm truncate max-w-[100px] lg:max-w-[150px]">{userName}</span>
           </Button>
         </div>
       </div>

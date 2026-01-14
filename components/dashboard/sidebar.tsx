@@ -52,9 +52,9 @@ export function Sidebar({ items, title, userRole }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Logo/Title */}
-          <div className="p-6 border-b border-sidebar-border">
-            <h1 className="text-xl font-bold text-sidebar-foreground">{title}</h1>
-            <p className="text-sm text-sidebar-foreground/60 capitalize">{userRole}</p>
+          <div className="p-6 border-b border-sidebar-border min-w-0">
+            <h1 className="text-xl font-bold text-sidebar-foreground truncate" title={title}>{title}</h1>
+            <p className="text-sm text-sidebar-foreground/60 capitalize truncate" title={userRole}>{userRole}</p>
           </div>
 
           {/* Navigation Items */}
@@ -74,7 +74,7 @@ export function Sidebar({ items, title, userRole }: SidebarProps) {
                   )}
                 >
                   {item.icon}
-                  <span className="flex-1 text-sm font-medium">{item.label}</span>
+                  <span className="flex-1 text-sm font-medium truncate min-w-0">{item.label}</span>
                   {item.badge && (
                     <span className="absolute right-2 top-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {item.badge}
