@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { BarChart3, Users, Ticket, Settings, TrendingUp, AlertCircle, Plus, Phone } from "lucide-react"
+import { BarChart3, Users, Ticket, Settings, TrendingUp, AlertCircle, Plus, Phone, Clock } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -27,6 +27,7 @@ export default function TenantAdminDashboard() {
   const sidebarItems = [
     { label: "Overview", href: "/dashboard/tenant-admin", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Leads", href: "/dashboard/tenant-admin/leads", icon: <Phone className="h-5 w-5" /> },
+    { label: "Call History", href: "/dashboard/tenant-admin/call-history", icon: <Clock className="h-5 w-5" /> },
     { label: "Agents", href: "/dashboard/tenant-admin/agents", icon: <Users className="h-5 w-5" /> },
     { label: "Tickets", href: "/dashboard/tenant-admin/tickets", icon: <Ticket className="h-5 w-5" /> },
     { label: "Create Ticket", href: "/dashboard/tenant-admin/new", icon: <Plus className="h-5 w-5" /> },
