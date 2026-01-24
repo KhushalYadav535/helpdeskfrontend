@@ -1,5 +1,5 @@
 // Forward requests to backend API
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.credibilitycrm.com/api"
 
 export async function GET(request: Request) {
   try {

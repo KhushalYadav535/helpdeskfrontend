@@ -74,6 +74,10 @@ export default function TenantCallHistoryPage() {
     }
 
     fetchCalls()
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchCalls, 30000)
+    
+    return () => clearInterval(interval)
   }, [user?.tenantId, token])
 
   const filteredCalls = calls.filter((call) => {

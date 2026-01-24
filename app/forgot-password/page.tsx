@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { ArrowLeft, Mail } from "lucide-react"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.credibilitycrm.com/api"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")

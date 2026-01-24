@@ -76,6 +76,10 @@ export default function SuperAdminCallHistoryPage() {
     }
 
     fetchCalls()
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchCalls, 30000)
+    
+    return () => clearInterval(interval)
   }, [token])
 
   const filteredCalls = calls.filter((call) => {

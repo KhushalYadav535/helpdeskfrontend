@@ -82,6 +82,10 @@ export default function LeadsPage() {
     }
 
     fetchLeads()
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchLeads, 30000)
+    
+    return () => clearInterval(interval)
   }, [user?.tenantId, token])
 
   const handleMigrate = async () => {

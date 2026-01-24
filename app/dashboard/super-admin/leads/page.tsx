@@ -98,6 +98,10 @@ export default function SuperAdminLeadsPage() {
     }
 
     fetchData()
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchData, 30000)
+    
+    return () => clearInterval(interval)
   }, [token])
 
   const handleMigrate = async () => {
