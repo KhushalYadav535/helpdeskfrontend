@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Phone, TrendingUp, Settings, Filter, Play, Clock, User, Mail } from "lucide-react"
+import { Phone, TrendingUp, Settings, Filter, Play, Clock, User, Mail, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -60,27 +60,27 @@ export default function LeadsPage() {
 
   const [migrating, setMigrating] = useState(false)
 
-  useEffect(() => {
-    const fetchLeads = async () => {
-      if (!user?.tenantId || !token) return
+  const fetchLeads = async () => {
+    if (!user?.tenantId || !token) return
 
-      try {
-        setLoading(true)
-        const response = await fetch(`${API_URL}/leads?tenantId=${user.tenantId}`, {
-          headers: getHeaders(true),
-        })
-        const result = await response.json()
+    try {
+      setLoading(true)
+      const response = await fetch(`${API_URL}/leads?tenantId=${user.tenantId}`, {
+        headers: getHeaders(true),
+      })
+      const result = await response.json()
 
-        if (result.success && result.data) {
-          setLeads(result.data)
-        }
-      } catch (error) {
-        console.error("Error fetching leads:", error)
-      } finally {
-        setLoading(false)
+      if (result.success && result.data) {
+        setLeads(result.data)
       }
+    } catch (error) {
+      console.error("Error fetching leads:", error)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchLeads()
     // Auto-refresh every 30 seconds
     const interval = setInterval(fetchLeads, 30000)
@@ -198,11 +198,22 @@ export default function LeadsPage() {
             <h1 className="text-3xl font-bold tracking-tight">Leads</h1>
             <p className="text-muted-foreground mt-2">Manage call leads and conversions</p>
           </div>
-          {leads.length === 0 && !loading && (
-            <Button onClick={handleMigrate} disabled={migrating}>
-              {migrating ? "Migrating..." : "Migrate from Tickets"}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={fetchLeads}
+              disabled={loading}
+              title="Refresh leads"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </Button>
-          )}
+            {leads.length === 0 && !loading && (
+              <Button onClick={handleMigrate} disabled={migrating}>
+                {migrating ? "Migrating..." : "Migrate from Tickets"}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Filters */}

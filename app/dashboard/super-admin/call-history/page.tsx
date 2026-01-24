@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Phone, PhoneCall, Clock, FileText, Play, Building2, Users, Ticket, Plus, BarChart3, ChevronLeft, ChevronRight } from "lucide-react"
+import { Phone, PhoneCall, Clock, FileText, Play, Building2, Users, Ticket, Plus, BarChart3, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
 
 interface CallLead {
   _id: string
@@ -49,32 +49,32 @@ export default function SuperAdminCallHistoryPage() {
     { label: "Settings", href: "/dashboard/super-admin/settings", icon: <Clock className="h-5 w-5" /> },
   ]
 
-  useEffect(() => {
-    const fetchCalls = async () => {
-      if (!token) return
+  const fetchCalls = async () => {
+    if (!token) return
 
-      try {
-        setLoading(true)
-        const response = await fetch(`${API_URL}/leads`, {
-          headers: getHeaders(true),
+    try {
+      setLoading(true)
+      const response = await fetch(`${API_URL}/leads`, {
+        headers: getHeaders(true),
+      })
+
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        const callOnly = (result.data as CallLead[]).filter((lead) => {
+          const src = (lead.source || "").toLowerCase()
+          return src === "zoronal" || src === "phone" || src === "whatsapp"
         })
-
-        const result = await response.json()
-
-        if (result.success && result.data) {
-          const callOnly = (result.data as CallLead[]).filter((lead) => {
-            const src = (lead.source || "").toLowerCase()
-            return src === "zoronal" || src === "phone" || src === "whatsapp"
-          })
-          setCalls(callOnly)
-        }
-      } catch (error) {
-        console.error("Error fetching call history:", error)
-      } finally {
-        setLoading(false)
+        setCalls(callOnly)
       }
+    } catch (error) {
+      console.error("Error fetching call history:", error)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchCalls()
     // Auto-refresh every 30 seconds
     const interval = setInterval(fetchCalls, 30000)
@@ -155,12 +155,23 @@ export default function SuperAdminCallHistoryPage() {
               View all phone call records across all tenants with basic details.
             </p>
           </div>
-          <Input
-            placeholder="Search by ID, number, tenant, or transcript..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-xs"
-          />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={fetchCalls}
+              disabled={loading}
+              title="Refresh call history"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            </Button>
+            <Input
+              placeholder="Search by ID, number, tenant, or transcript..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-xs"
+            />
+          </div>
         </div>
 
         <Card>

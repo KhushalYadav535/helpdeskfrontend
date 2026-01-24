@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Phone, TrendingUp, Settings, Building2, Users, Ticket, Plus, BarChart3, Play } from "lucide-react"
+import { Phone, TrendingUp, Settings, Building2, Users, Ticket, Plus, BarChart3, Play, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -65,38 +65,38 @@ export default function SuperAdminLeadsPage() {
 
   const [migrating, setMigrating] = useState(false)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!token) return
+  const fetchData = async () => {
+    if (!token) return
 
-      try {
-        setLoading(true)
-        
-        // Fetch tenants for filter
-        const tenantsResponse = await fetch(`${API_URL}/tenants`, {
-          headers: getHeaders(true),
-        })
-        const tenantsResult = await tenantsResponse.json()
-        if (tenantsResult.success && tenantsResult.data) {
-          setTenants(tenantsResult.data)
-        }
-
-        // Fetch all leads
-        const response = await fetch(`${API_URL}/leads`, {
-          headers: getHeaders(true),
-        })
-        const result = await response.json()
-
-        if (result.success && result.data) {
-          setLeads(result.data)
-        }
-      } catch (error) {
-        console.error("Error fetching leads:", error)
-      } finally {
-        setLoading(false)
+    try {
+      setLoading(true)
+      
+      // Fetch tenants for filter
+      const tenantsResponse = await fetch(`${API_URL}/tenants`, {
+        headers: getHeaders(true),
+      })
+      const tenantsResult = await tenantsResponse.json()
+      if (tenantsResult.success && tenantsResult.data) {
+        setTenants(tenantsResult.data)
       }
-    }
 
+      // Fetch all leads
+      const response = await fetch(`${API_URL}/leads`, {
+        headers: getHeaders(true),
+      })
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        setLeads(result.data)
+      }
+    } catch (error) {
+      console.error("Error fetching leads:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
     fetchData()
     // Auto-refresh every 30 seconds
     const interval = setInterval(fetchData, 30000)
@@ -217,11 +217,22 @@ export default function SuperAdminLeadsPage() {
             <h1 className="text-3xl font-bold tracking-tight">All Leads</h1>
             <p className="text-muted-foreground mt-2">Manage leads across all tenants</p>
           </div>
-          {leads.length === 0 && !loading && (
-            <Button onClick={handleMigrate} disabled={migrating}>
-              {migrating ? "Migrating..." : "Migrate from Tickets"}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={fetchData}
+              disabled={loading}
+              title="Refresh leads"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </Button>
-          )}
+            {leads.length === 0 && !loading && (
+              <Button onClick={handleMigrate} disabled={migrating}>
+                {migrating ? "Migrating..." : "Migrate from Tickets"}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Filters */}
