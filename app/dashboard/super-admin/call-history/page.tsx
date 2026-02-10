@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Phone, PhoneCall, Clock, FileText, Play, Building2, Users, Ticket, Plus, BarChart3, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
+import { Phone, PhoneCall, Clock, Building2, Users, Ticket, Plus, BarChart3, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
 
 interface CallLead {
   _id: string
@@ -110,13 +110,6 @@ export default function SuperAdminCallHistoryPage() {
     setCurrentPage(1)
   }, [itemsPerPage])
 
-  const formatDuration = (seconds?: number) => {
-    if (!seconds || seconds <= 0) return "-"
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins} min ${secs.toString().padStart(2, "0")} sec`
-  }
-
   const formatDate = (value?: string) => {
     if (!value) return "-"
     const date = new Date(value)
@@ -128,15 +121,6 @@ export default function SuperAdminCallHistoryPage() {
       hour: "2-digit",
       minute: "2-digit",
     })
-  }
-
-  const getCost = (call: CallLead) => {
-    const raw =
-      (call.metadata && (call.metadata.cost || call.metadata.callCost || call.metadata.price)) ?? undefined
-    if (raw === undefined || raw === null) return "-"
-    const num = typeof raw === "number" ? raw : parseFloat(String(raw))
-    if (Number.isNaN(num)) return "-"
-    return num.toFixed(5)
   }
 
   return (
@@ -177,7 +161,7 @@ export default function SuperAdminCallHistoryPage() {
         <Card>
           <CardHeader>
             <CardTitle>Call History ({filteredCalls.length})</CardTitle>
-            <CardDescription>Via, Number, Status, Date, Minutes, Cost, Transcript</CardDescription>
+            <CardDescription>Via, Number, Status, Date</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -201,10 +185,6 @@ export default function SuperAdminCallHistoryPage() {
                       <th className="py-2 pr-4 font-medium">Number</th>
                       <th className="py-2 pr-4 font-medium">Status</th>
                       <th className="py-2 pr-4 font-medium">Date</th>
-                      <th className="py-2 pr-4 font-medium">Minutes</th>
-                      <th className="py-2 pr-4 font-medium">Cost</th>
-                      <th className="py-2 pr-4 font-medium">Transcript</th>
-                      <th className="py-2 pl-2 font-medium text-right">Recording</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -229,35 +209,6 @@ export default function SuperAdminCallHistoryPage() {
                           )}
                         </td>
                         <td className="py-2 pr-4 whitespace-nowrap">{formatDate(call.callTimestamp)}</td>
-                        <td className="py-2 pr-4">{formatDuration(call.callDuration)}</td>
-                        <td className="py-2 pr-4">{getCost(call)}</td>
-                        <td className="py-2 pr-4 max-w-[260px]">
-                          {call.callTranscript ? (
-                            <div className="flex items-center gap-1">
-                              <FileText className="h-4 w-4 text-muted-foreground" />
-                              <span className="truncate">
-                                {call.callTranscript.length > 80
-                                  ? `${call.callTranscript.substring(0, 80)}...`
-                                  : call.callTranscript}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">No transcript</span>
-                          )}
-                        </td>
-                        <td className="py-2 pl-2 text-right">
-                          {call.callRecordingUrl ? (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => window.open(call.callRecordingUrl as string, "_blank")}
-                            >
-                              <Play className="h-4 w-4" />
-                            </Button>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">Future</span>
-                          )}
-                        </td>
                       </tr>
                     ))}
                   </tbody>
