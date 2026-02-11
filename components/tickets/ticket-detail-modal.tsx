@@ -7,7 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDistanceToNow } from "date-fns"
+import { UserPlus, ArrowRightLeft } from "lucide-react"
 
 interface Ticket {
   id: string
@@ -23,6 +25,8 @@ interface Ticket {
   assignedAt?: string
   category: string
   responses: number
+  clientFeedback?: "satisfied" | "dissatisfied" | "no_response"
+  feedbackToken?: string
   // Allow backend fields passthrough
   _id?: string
 }
@@ -31,65 +35,89 @@ interface TicketDetailModalProps {
   ticket: Ticket | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  onTicketUpdated?: () => void
 }
 
-export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailModalProps) {
+export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated }: TicketDetailModalProps) {
   const { user } = useAuth()
   const [newComment, setNewComment] = useState("")
   const [closing, setClosing] = useState(false)
   const [resolving, setResolving] = useState(false)
   const [reopening, setReopening] = useState(false)
   const [canReopen, setCanReopen] = useState(false)
+  const [canAssign, setCanAssign] = useState(false)
   const [agentLevel, setAgentLevel] = useState<string | null>(null)
   const [comments, setComments] = useState<any[]>([])
   const [loadingComments, setLoadingComments] = useState(false)
+  const [agents, setAgents] = useState<any[]>([])
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false)
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false)
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("")
+  const [assigning, setAssigning] = useState(false)
+  const [transferring, setTransferring] = useState(false)
 
-  // Check if user can reopen tickets (admin or supervisor)
+  // Check if user can reopen/assign tickets (admin or supervisor)
   useEffect(() => {
-    const checkReopenPermission = async () => {
+    const checkPermissions = async () => {
       if (!user) {
         setCanReopen(false)
+        setCanAssign(false)
         return
       }
 
-      // Tenant Admin or Super Admin can always reopen
+      // Tenant Admin or Super Admin can reopen and assign/transfer
       if (user.role === "tenant-admin" || user.role === "super-admin") {
         setCanReopen(true)
+        setCanAssign(true)
         return
       }
 
       // For agents, check if they are supervisor
       if (user.role === "agent") {
         try {
-          // Get all agents for the tenant and find the current user's agent record
           const response = await fetch(`${API_URL}/agents${user.tenantId ? `?tenantId=${user.tenantId}` : ''}`, {
             headers: getHeaders(true),
           })
           const result = await response.json()
           if (result.success && result.data && result.data.length > 0) {
-            // The backend returns agents with userId populated, but we need to match by the user's id
-            // Since the backend returns userId as a populated object, we need to check differently
-            // For now, we'll check if the user's email matches any agent's email
-            const agent = result.data.find((a: any) => {
-              // Try matching by email as a fallback since userId might be populated
-              return a.email === user.email
-            })
+            const agent = result.data.find((a: any) => a.email === user.email)
             if (agent) {
               const level = agent.agentLevel || "agent"
               setAgentLevel(level)
-              // Supervisor can reopen
               setCanReopen(level === "supervisor")
+              setCanAssign(level === "supervisor")
             }
           }
         } catch (error) {
           console.error("Error checking agent level:", error)
           setCanReopen(false)
+          setCanAssign(false)
         }
       }
     }
 
-    checkReopenPermission()
+    checkPermissions()
   }, [user])
+
+  // Fetch agents for assign/transfer when modal opens and user can assign
+  useEffect(() => {
+    const fetchAgents = async () => {
+      if (!open || !canAssign || !user?.tenantId) return
+      try {
+        const response = await fetch(`${API_URL}/agents?tenantId=${user.tenantId}`, {
+          headers: getHeaders(true),
+        })
+        const result = await response.json()
+        if (result.success && result.data) {
+          // Exclude management (dashboard-only) and supervisors from assignment targets
+          setAgents(result.data.filter((a: any) => a.agentLevel !== "management" && a.agentLevel !== "supervisor"))
+        }
+      } catch (error) {
+        console.error("Error fetching agents:", error)
+      }
+    }
+    fetchAgents()
+  }, [open, canAssign, user?.tenantId])
 
   // Fetch comments when ticket changes
   useEffect(() => {
@@ -164,8 +192,6 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
     }
     try {
       setResolving(true)
-      // Resolve ticket - backend will automatically set resolvedBy and resolvedAt
-      // Then immediately close it
       const resolveRes = await fetch(`${API_URL}/tickets/${mongoId}`, {
         method: "PUT",
         headers: getHeaders(true),
@@ -175,20 +201,8 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
       if (!resolveResult.success) {
         throw new Error(resolveResult.error || "Failed to resolve ticket")
       }
-      
-      // Automatically close the resolved ticket
-      const closeRes = await fetch(`${API_URL}/tickets/${mongoId}`, {
-        method: "PUT",
-        headers: getHeaders(true),
-        body: JSON.stringify({ status: "Closed" }),
-      })
-      const closeResult = await closeRes.json()
-      if (!closeResult.success) {
-        throw new Error(closeResult.error || "Failed to close ticket")
-      }
-      
-      // Simple approach: refresh to reflect latest status
-      window.location.reload()
+      onTicketUpdated?.()
+      onOpenChange(false)
     } catch (e: any) {
       alert(e.message || "Failed to resolve ticket")
     } finally {
@@ -214,12 +228,62 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
       if (!result.success) {
         throw new Error(result.error || "Failed to close ticket")
       }
-      // Simple approach: refresh to reflect latest status
-      window.location.reload()
+      onTicketUpdated?.()
+      onOpenChange(false)
     } catch (e: any) {
       alert(e.message || "Failed to close ticket")
     } finally {
       setClosing(false)
+    }
+  }
+
+  const handleAssignTicket = async () => {
+    if (!ticket || !selectedAgentId) return
+    const mongoId = (ticket as any)._id
+    if (!mongoId) return
+    try {
+      setAssigning(true)
+      const res = await fetch(`${API_URL}/tickets/${mongoId}`, {
+        method: "PUT",
+        headers: getHeaders(true),
+        body: JSON.stringify({ agentId: selectedAgentId }),
+      })
+      const result = await res.json()
+      if (!result.success) {
+        throw new Error(result.error || "Failed to assign ticket")
+      }
+      setAssignDialogOpen(false)
+      setSelectedAgentId("")
+      onTicketUpdated?.()
+    } catch (e: any) {
+      alert(e.message || "Failed to assign ticket")
+    } finally {
+      setAssigning(false)
+    }
+  }
+
+  const handleTransferTicket = async () => {
+    if (!ticket || !selectedAgentId) return
+    const mongoId = (ticket as any)._id
+    if (!mongoId) return
+    try {
+      setTransferring(true)
+      const res = await fetch(`${API_URL}/tickets/${mongoId}/transfer`, {
+        method: "POST",
+        headers: getHeaders(true),
+        body: JSON.stringify({ toAgentId: selectedAgentId }),
+      })
+      const result = await res.json()
+      if (!result.success) {
+        throw new Error(result.error || "Failed to transfer ticket")
+      }
+      setTransferDialogOpen(false)
+      setSelectedAgentId("")
+      onTicketUpdated?.()
+    } catch (e: any) {
+      alert(e.message || "Failed to transfer ticket")
+    } finally {
+      setTransferring(false)
     }
   }
 
@@ -290,6 +354,7 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
   }
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
@@ -321,7 +386,21 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Assigned Agent</p>
-              <p className="text-sm font-medium">{ticket.agent}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-sm font-medium">{ticket.agent}</p>
+                {canAssign && ticket.status !== "Closed" && (
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="outline" onClick={() => { setSelectedAgentId(""); setAssignDialogOpen(true) }}>
+                      <UserPlus className="h-3 w-3 mr-1" />
+                      Assign
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => { setSelectedAgentId(""); setTransferDialogOpen(true) }}>
+                      <ArrowRightLeft className="h-3 w-3 mr-1" />
+                      Transfer
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Created</p>
@@ -471,26 +550,40 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
                 </Button>
               )
             ) : ticket.status === "Resolved" ? (
-              // Resolved tickets: Can be closed or reopened
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleCloseTicket}
-                  disabled={closing}
-                  className="flex-1"
-                  variant="default"
-                >
-                  {closing ? "Closing..." : "Close Ticket"}
-                </Button>
-                {canReopen && (
-                  <Button
-                    onClick={handleReopenTicket}
-                    disabled={reopening}
-                    className="flex-1"
-                    variant="outline"
-                  >
-                    {reopening ? "Reopening..." : "Reopen Ticket"}
-                  </Button>
+              // Resolved tickets: Close requires client feedback (tenant-admin/super-admin can override)
+              <div className="space-y-2">
+                {!(ticket as any).clientFeedback && (
+                  <div className="text-xs space-y-1">
+                    {(user?.role === "tenant-admin" || user?.role === "super-admin") && (
+                      <p className="text-amber-600">Awaiting client feedback. Admins can close without feedback.</p>
+                    )}
+                    {(ticket as any).feedbackToken && (
+                      <p className="text-muted-foreground break-all">
+                        Client feedback link: {typeof window !== "undefined" ? `${window.location.origin}/feedback/${(ticket as any)._id || ticket.id}?token=${(ticket as any).feedbackToken}` : ""}
+                      </p>
+                    )}
+                  </div>
                 )}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleCloseTicket}
+                    disabled={closing}
+                    className="flex-1"
+                    variant="default"
+                  >
+                    {closing ? "Closing..." : "Close Ticket"}
+                  </Button>
+                  {canReopen && (
+                    <Button
+                      onClick={handleReopenTicket}
+                      disabled={reopening}
+                      className="flex-1"
+                      variant="outline"
+                    >
+                      {reopening ? "Reopening..." : "Reopen Ticket"}
+                    </Button>
+                  )}
+                </div>
               </div>
             ) : (
               // Open/In Progress tickets: Can be resolved or closed
@@ -517,5 +610,64 @@ export function TicketDetailModal({ ticket, open, onOpenChange }: TicketDetailMo
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Assign Dialog */}
+    <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Assign Ticket</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Select Agent</label>
+            <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose agent..." />
+              </SelectTrigger>
+              <SelectContent>
+                {agents.filter((a) => a.agentLevel !== "management" && a.agentLevel !== "supervisor").map((a: any) => (
+                  <SelectItem key={a._id || a.id} value={(a.userId?._id || a.userId || a._id || a.id)?.toString()}>
+                    {a.name || a.email} ({a.agentLevel || "agent"})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleAssignTicket} disabled={!selectedAgentId || assigning} className="w-full">
+            {assigning ? "Assigning..." : "Assign"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+
+    {/* Transfer Dialog */}
+    <Dialog open={transferDialogOpen} onOpenChange={setTransferDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Transfer Ticket</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Transfer to Agent</label>
+            <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Choose agent..." />
+              </SelectTrigger>
+              <SelectContent>
+                {agents.filter((a) => a.agentLevel !== "management" && a.agentLevel !== "supervisor").map((a: any) => (
+                  <SelectItem key={a._id || a.id} value={(a.userId?._id || a.userId || a._id || a.id)?.toString()}>
+                    {a.name || a.email} ({a.agentLevel || "agent"})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleTransferTicket} disabled={!selectedAgentId || transferring} className="w-full">
+            {transferring ? "Transferring..." : "Transfer"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }

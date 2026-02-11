@@ -23,7 +23,7 @@ export default function AgentNewTicketPage() {
 
   const sidebarItems = [
     { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" /> },
-    { label: "All Tickets", href: "/dashboard/agent/tickets", icon: <AlertCircle className="h-5 w-5" /> },
+    { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <AlertCircle className="h-5 w-5" /> },
     { label: "Create Ticket", href: "/dashboard/agent/new", icon: <Plus className="h-5 w-5" /> },
     { label: "Performance", href: "/dashboard/agent/performance", icon: <AlertCircle className="h-5 w-5" /> },
     { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },

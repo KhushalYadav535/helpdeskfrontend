@@ -164,6 +164,8 @@ export default function AgentsPage() {
 
   const getLevelColor = (level: string) => {
     switch (level) {
+      case "management":
+        return "bg-amber-500/20 text-amber-400"
       case "supervisor":
         return "bg-purple-500/20 text-purple-400"
       case "senior-agent":
@@ -177,6 +179,8 @@ export default function AgentsPage() {
 
   const getLevelLabel = (level: string) => {
     switch (level) {
+      case "management":
+        return "Management"
       case "supervisor":
         return "Supervisor"
       case "senior-agent":
@@ -262,8 +266,9 @@ export default function AgentsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="agent">Agent - View & work on tickets, close tickets</SelectItem>
-                    <SelectItem value="senior-agent">Senior Agent - All Agent permissions + Assign tickets</SelectItem>
-                    <SelectItem value="supervisor">Supervisor - All Senior Agent permissions + Track & manage agents</SelectItem>
+                    <SelectItem value="senior-agent">Senior Agent - Work on tickets, can resolve</SelectItem>
+                    <SelectItem value="supervisor">Supervisor - Assign/transfer tickets, track agents</SelectItem>
+                    <SelectItem value="management">Management - Dashboard only, no ticket access</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">

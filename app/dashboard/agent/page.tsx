@@ -23,14 +23,20 @@ export default function AgentDashboard() {
   })
 
   const isSupervisor = agentLevel === "supervisor"
-  const sidebarItems = [
-    { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: myTickets.length },
-    { label: "All Tickets", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
-    { label: "Create Ticket", href: "/dashboard/agent/new", icon: <Plus className="h-5 w-5" /> },
-    { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
-    ...(isSupervisor ? [{ label: "Team Management", href: "/dashboard/agent/team", icon: <Users className="h-5 w-5" /> }] : []),
-    { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
-  ]
+  const isManagement = agentLevel === "management"
+  const sidebarItems = isManagement
+    ? [
+        { label: "Overview", href: "/dashboard/agent", icon: <BarChart3 className="h-5 w-5" /> },
+        { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
+      ]
+    : [
+        { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: myTickets.length },
+        { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
+        { label: "Create Ticket", href: "/dashboard/agent/new", icon: <Plus className="h-5 w-5" /> },
+        { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
+        ...(isSupervisor ? [{ label: "Team Management", href: "/dashboard/agent/team", icon: <Users className="h-5 w-5" /> }] : []),
+        { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
+      ]
 
   // Fetch tenant name and tickets
   useEffect(() => {
@@ -55,6 +61,8 @@ export default function AgentDashboard() {
         }
 
         // Fetch current agent info to get agentLevel
+        let currentLevel = "agent"
+        let currentAgent: any = null
         try {
           const agentsResponse = await fetch(`${API_URL}/agents?tenantId=${user.tenantId}`, {
             headers: getHeaders(true),
@@ -62,32 +70,50 @@ export default function AgentDashboard() {
           const agentsResult = await agentsResponse.json()
 
           if (agentsResult.success && agentsResult.data) {
-            const currentAgent = agentsResult.data.find((a: any) => a.email === user.email)
+            currentAgent = agentsResult.data.find((a: any) => a.email === user.email)
             if (currentAgent) {
-              setAgentLevel(currentAgent.agentLevel || "agent")
+              currentLevel = currentAgent.agentLevel || "agent"
+              setAgentLevel(currentLevel)
             }
           }
         } catch (error) {
           console.error("Error fetching agent level:", error)
         }
 
-        // Fetch tickets
-        const response = await fetch(`${API_URL}/tickets?myTickets=true`, {
+        // For Management: fetch tenant-level tickets; for agents: fetch only assigned tickets
+        const ticketsEndpoint = currentLevel === "management"
+          ? `${API_URL}/tickets?tenantId=${user.tenantId}`
+          : `${API_URL}/tickets?myTickets=true`
+        const response = await fetch(ticketsEndpoint, {
           headers: getHeaders(true),
         })
         const result = await response.json()
 
         if (result.success && result.data) {
-          setMyTickets(result.data)
+          let tickets = result.data
+          // Client-side filter for agents: only show tickets assigned to current agent
+          if (currentLevel !== "management" && currentAgent) {
+            const agentIds = [
+              currentAgent._id?.toString?.(),
+              currentAgent.userId?._id?.toString?.(),
+              currentAgent.userId?.toString?.(),
+            ].filter(Boolean)
+            if (agentIds.length > 0) {
+              tickets = tickets.filter((t: any) => {
+                const tAgentId = (t.agentId as any)?._id?.toString?.() ?? (t.agentId as any)?.toString?.() ?? String(t.agentId || "")
+                return agentIds.some((id) => id && tAgentId === id)
+              })
+            }
+          }
+          setMyTickets(currentLevel === "management" ? [] : tickets)
           
-          // Calculate stats
           const today = new Date().toISOString().split("T")[0]
-          const resolvedToday = result.data.filter(
+          const resolvedToday = tickets.filter(
             (t: any) => (t.status === "Resolved" || t.status === "Closed") && t.updated && t.updated.split("T")[0] === today
           ).length
 
           setStats({
-            assigned: result.data.length,
+            assigned: tickets.length,
             resolved: resolvedToday,
             responseTime: "12 min",
             rating: 4.8,
@@ -127,9 +153,9 @@ export default function AgentDashboard() {
       <div className="space-y-6">
         {/* Page Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Tickets</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{isManagement ? "Dashboard" : "My Tickets"}</h1>
           <p className="text-muted-foreground mt-2">
-            Your active tickets and workload
+            {isManagement ? "Tenant overview and metrics" : "Your active tickets and workload"}
             {tenantName && (
               <span className="ml-2 text-sm text-accent">
                 • {tenantName}
@@ -138,17 +164,17 @@ export default function AgentDashboard() {
           </p>
         </div>
 
-        {/* Agent Stats */}
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Assigned Today</CardTitle>
+              <CardTitle className="text-sm font-medium">{isManagement ? "Total Tickets" : "Assigned Today"}</CardTitle>
               <Ticket className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.assigned}</div>
               <p className="text-xs text-muted-foreground">
-                {stats.assigned - stats.resolved} remaining
+                {isManagement ? "All tenant tickets" : `${stats.assigned - stats.resolved} remaining`}
               </p>
             </CardContent>
           </Card>
@@ -187,16 +213,17 @@ export default function AgentDashboard() {
           </Card>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions - hidden for Management */}
+        {!isManagement && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader>
-              <CardTitle>View All Tickets</CardTitle>
-              <CardDescription>See tickets across the entire system</CardDescription>
+              <CardTitle>View Assigned Tickets</CardTitle>
+              <CardDescription>See all tickets assigned to you</CardDescription>
             </CardHeader>
             <CardContent>
               <Link href="/dashboard/agent/tickets">
-                <Button className="w-full">All Tickets</Button>
+                <Button className="w-full">My Assigned Tickets</Button>
               </Link>
             </CardContent>
           </Card>
@@ -213,8 +240,10 @@ export default function AgentDashboard() {
             </CardContent>
           </Card>
         </div>
+        )}
 
-        {/* My Active Tickets */}
+        {/* My Active Tickets - hidden for Management */}
+        {!isManagement && (
         <Card>
           <CardHeader>
             <CardTitle>My Tickets ({myTickets.length})</CardTitle>
@@ -275,6 +304,7 @@ export default function AgentDashboard() {
             )}
           </CardContent>
         </Card>
+        )}
       </div>
     </DashboardLayout>
   )

@@ -18,7 +18,7 @@ export default function AllTicketsPage() {
   const isSupervisor = agentLevel === "supervisor"
   const sidebarItems = [
     { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: allTickets.length },
-    { label: "All Tickets", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
+    { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
     ...(isSupervisor ? [{ label: "Team Management", href: "/dashboard/agent/team", icon: <Users className="h-5 w-5" /> }] : []),
     { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
@@ -46,7 +46,8 @@ export default function AllTicketsPage() {
           setTenantName(user.companyName || "")
         }
 
-        // Fetch current agent info to get agentLevel
+        // Fetch current agent info and tickets
+        let currentAgent: any = null
         try {
           const agentsResponse = await fetch(`${API_URL}/agents?tenantId=${user.tenantId}`, {
             headers: getHeaders(true),
@@ -54,7 +55,7 @@ export default function AllTicketsPage() {
           const agentsResult = await agentsResponse.json()
 
           if (agentsResult.success && agentsResult.data) {
-            const currentAgent = agentsResult.data.find((a: any) => a.email === user.email)
+            currentAgent = agentsResult.data.find((a: any) => a.email === user.email)
             if (currentAgent) {
               setAgentLevel(currentAgent.agentLevel || "agent")
             }
@@ -63,13 +64,29 @@ export default function AllTicketsPage() {
           console.error("Error fetching agent level:", error)
         }
 
-        const response = await fetch(`${API_URL}/tickets`, {
+        // Fetch only agent's assigned tickets (myTickets=true) - supervisor also sees only their assigned
+        const response = await fetch(`${API_URL}/tickets?myTickets=true`, {
           headers: getHeaders(true),
         })
         const result = await response.json()
 
         if (result.success && result.data) {
-          setAllTickets(result.data)
+          let tickets = result.data
+          // Client-side filter: show only tickets assigned to current agent (fallback if backend returns all)
+          if (currentAgent && user?.role === "agent") {
+            const agentIds = [
+              currentAgent._id?.toString?.(),
+              currentAgent.userId?._id?.toString?.(),
+              currentAgent.userId?.toString?.(),
+            ].filter(Boolean)
+            if (agentIds.length > 0) {
+              tickets = tickets.filter((t: any) => {
+                const tAgentId = (t.agentId as any)?._id?.toString?.() ?? (t.agentId as any)?.toString?.() ?? String(t.agentId || "")
+                return agentIds.some((id) => id && tAgentId === id)
+              })
+            }
+          }
+          setAllTickets(tickets)
         }
       } catch (error) {
         console.error("Error fetching tickets:", error)
@@ -93,9 +110,9 @@ export default function AllTicketsPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">All Tickets</h1>
+            <h1 className="text-3xl font-bold tracking-tight">My Assigned Tickets</h1>
             <p className="text-muted-foreground mt-2">
-              View all tickets in your tenant
+              Tickets assigned to you
               {tenantName && (
                 <span className="ml-2 text-sm text-accent">
                   • {tenantName}
@@ -112,11 +129,11 @@ export default function AllTicketsPage() {
         {/* Tickets List */}
         {loading ? (
           <div className="text-center py-12 text-muted-foreground">Loading tickets...</div>
-        ) : allTickets.length === 0 ? (
+        ) :           allTickets.length === 0 ? (
           <div className="text-center py-12">
             <Ticket className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-xl font-medium mb-2">No tickets yet</h3>
-            <p className="text-muted-foreground">Tickets will appear here once created</p>
+            <h3 className="text-xl font-medium mb-2">No tickets assigned to you</h3>
+            <p className="text-muted-foreground">Tickets will appear here once a supervisor assigns them to you</p>
           </div>
         ) : (
           <TicketListWithSearch tickets={allTickets} />

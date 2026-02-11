@@ -186,6 +186,8 @@ export default function TicketsPage() {
                         category: ticket.category || "general",
                         responses: ticket.responses || 0,
                         _id: ticket._id?.toString() || ticket.id,
+                        clientFeedback: ticket.clientFeedback,
+                        feedbackToken: ticket.feedbackToken || (ticket.metadata as any)?.feedbackToken,
                       }
                       setSelectedTicket(modalTicket)
                       setModalOpen(true)
@@ -229,11 +231,9 @@ export default function TicketsPage() {
           open={modalOpen} 
           onOpenChange={(open) => {
             setModalOpen(open)
-            if (!open) {
-              // Refresh tickets when modal closes (in case ticket was closed)
-              fetchTickets()
-            }
-          }} 
+            if (!open) fetchTickets()
+          }}
+          onTicketUpdated={fetchTickets}
         />
       </div>
     </DashboardLayout>

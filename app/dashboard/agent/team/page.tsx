@@ -46,7 +46,7 @@ export default function TeamManagementPage() {
 
   const sidebarItems = [
     { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: myTickets.length },
-    { label: "All Tickets", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
+    { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
     { label: "Team Management", href: "/dashboard/agent/team", icon: <Users className="h-5 w-5" /> },
     { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
@@ -169,6 +169,8 @@ export default function TeamManagementPage() {
 
   const getLevelColor = (level: string) => {
     switch (level) {
+      case "management":
+        return "bg-amber-500/20 text-amber-400"
       case "supervisor":
         return "bg-purple-500/20 text-purple-400"
       case "senior-agent":
@@ -182,6 +184,8 @@ export default function TeamManagementPage() {
 
   const getLevelLabel = (level: string) => {
     switch (level) {
+      case "management":
+        return "Management"
       case "supervisor":
         return "Supervisor"
       case "senior-agent":
@@ -264,8 +268,9 @@ export default function TeamManagementPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="agent">Agent - Basic permissions</SelectItem>
-                        <SelectItem value="senior-agent">Senior Agent - Can assign tickets</SelectItem>
+                        <SelectItem value="senior-agent">Senior Agent - Can resolve tickets</SelectItem>
                         <SelectItem value="supervisor" disabled>Supervisor - Only tenant admin can assign</SelectItem>
+                        <SelectItem value="management" disabled>Management - Dashboard only, tenant admin assigns</SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground">
