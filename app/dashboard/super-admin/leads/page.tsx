@@ -104,6 +104,26 @@ export default function SuperAdminLeadsPage() {
     return () => clearInterval(interval)
   }, [token])
 
+  // Auto-migrate: silently create leads from phone tickets (no click needed)
+  useEffect(() => {
+    if (!token) return
+    const runAutoMigrate = async () => {
+      try {
+        const res = await fetch(`${API_URL}/leads/migrate-from-tickets`, {
+          method: "POST",
+          headers: getHeaders(true),
+        })
+        const data = await res.json()
+        if (data.success && data.migrated > 0) {
+          fetchData()
+        }
+      } catch {
+        // silent
+      }
+    }
+    runAutoMigrate()
+  }, [token])
+
   const handleMigrate = async () => {
     if (!confirm("Migrate existing phone call tickets to leads? This will create leads from all phone call tickets across all tenants.")) {
       return
@@ -227,11 +247,14 @@ export default function SuperAdminLeadsPage() {
             >
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </Button>
-            {leads.length === 0 && !loading && (
-              <Button onClick={handleMigrate} disabled={migrating}>
-                {migrating ? "Migrating..." : "Migrate from Tickets"}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              onClick={handleMigrate}
+              disabled={migrating || loading}
+              title="Create leads from existing phone call tickets"
+            >
+              {migrating ? "Migrating..." : "Migrate from Tickets"}
+            </Button>
           </div>
         </div>
 

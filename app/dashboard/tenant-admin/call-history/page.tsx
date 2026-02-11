@@ -80,6 +80,26 @@ export default function TenantCallHistoryPage() {
     return () => clearInterval(interval)
   }, [user?.tenantId, token])
 
+  // Auto-migrate: silently create leads from phone tickets (so Call History shows them)
+  useEffect(() => {
+    if (!user?.tenantId || !token) return
+    const runAutoMigrate = async () => {
+      try {
+        const res = await fetch(`${API_URL}/leads/migrate-from-tickets`, {
+          method: "POST",
+          headers: getHeaders(true),
+        })
+        const data = await res.json()
+        if (data.success && data.migrated > 0) {
+          fetchCalls()
+        }
+      } catch {
+        // silent
+      }
+    }
+    runAutoMigrate()
+  }, [user?.tenantId, token])
+
   const filteredCalls = calls.filter((call) => {
     if (!searchTerm) return true
     const term = searchTerm.toLowerCase()

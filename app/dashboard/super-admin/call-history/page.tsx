@@ -82,6 +82,26 @@ export default function SuperAdminCallHistoryPage() {
     return () => clearInterval(interval)
   }, [token])
 
+  // Auto-migrate: silently create leads from phone tickets (so Call History shows them)
+  useEffect(() => {
+    if (!token) return
+    const runAutoMigrate = async () => {
+      try {
+        const res = await fetch(`${API_URL}/leads/migrate-from-tickets`, {
+          method: "POST",
+          headers: getHeaders(true),
+        })
+        const data = await res.json()
+        if (data.success && data.migrated > 0) {
+          fetchCalls()
+        }
+      } catch {
+        // silent
+      }
+    }
+    runAutoMigrate()
+  }, [token])
+
   const filteredCalls = calls.filter((call) => {
     if (!searchTerm) return true
     const term = searchTerm.toLowerCase()
