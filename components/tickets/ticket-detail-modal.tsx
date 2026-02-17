@@ -170,17 +170,17 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
   if (!ticket) return null
 
   const priorityColor = {
-    Critical: "bg-red-100 text-red-800",
-    High: "bg-orange-100 text-orange-800",
-    Medium: "bg-yellow-100 text-yellow-800",
-    Low: "bg-green-100 text-green-800",
+    Critical: "bg-red-500/90 text-white",
+    High: "bg-orange-400/90 text-white",
+    Medium: "bg-amber-400/90 text-white",
+    Low: "bg-green-500/90 text-white",
   }
 
   const statusColor = {
-    Open: "bg-blue-100 text-blue-800",
-    "In Progress": "bg-purple-100 text-purple-800",
-    Resolved: "bg-green-100 text-green-800",
-    Closed: "bg-gray-200 text-gray-700",
+    Open: "bg-sky-400/90 text-white",
+    "In Progress": "bg-blue-400/90 text-white",
+    Resolved: "bg-emerald-500/90 text-white",
+    Closed: "bg-slate-300 text-slate-700",
   }
 
   const handleResolveTicket = async () => {
@@ -356,7 +356,7 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
   return (
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl shadow-xl border-border/60">
         <DialogHeader>
           <DialogTitle className="text-xl">{ticket.id}</DialogTitle>
         </DialogHeader>

@@ -83,8 +83,10 @@ export default function Home() {
             <p className="text-sm font-medium text-primary">Now with AI-powered ticket routing</p>
           </div>
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight mb-6 text-balance">
-            Customer Support{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Built Better</span>
+            <span className="hero-word hero-word-1 text-foreground">Customer</span>{" "}
+            <span className="hero-word hero-word-2 text-foreground">Support</span>{" "}
+            <span className="hero-word hero-word-3">Built</span>{" "}
+            <span className="hero-word hero-word-4">Better</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-balance">
             Enterprise-grade helpdesk system designed for teams that demand excellence. Manage multiple tenants,
@@ -109,8 +111,8 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center" suppressHydrationWarning>
-                <div className="text-3xl font-bold text-accent mb-2">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-3xl font-extrabold text-foreground tracking-tight mb-2">{stat.value}</div>
+                <div className="text-sm font-medium text-muted-foreground">{stat.label}</div>
               </div>
             ))}
           </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Phone, TrendingUp, Settings, Building2, Users, Ticket, Plus, BarChart3, Play, RefreshCw } from "lucide-react"
+import { Phone, TrendingUp, Settings, Building2, Users, Ticket, Plus, BarChart3, Play, RefreshCw, LayoutList, LayoutGrid } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -50,6 +50,7 @@ export default function SuperAdminLeadsPage() {
   const [typeFilter, setTypeFilter] = useState<string>("all")
   const [tenantFilter, setTenantFilter] = useState<string>("all")
   const [tenants, setTenants] = useState<any[]>([])
+  const [viewMode, setViewMode] = useState<"list" | "grid">("grid")
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -204,6 +205,19 @@ export default function SuperAdminLeadsPage() {
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
+  const timeAgo = (dateStr: string | undefined) => {
+    if (!dateStr) return "—"
+    const d = new Date(dateStr)
+    const now = new Date()
+    const diffMs = now.getTime() - d.getTime()
+    const diffM = Math.floor(diffMs / 60000)
+    const diffH = Math.floor(diffMs / 3600000)
+    const diffD = Math.floor(diffMs / 86400000)
+    if (diffM < 60) return `${diffM}m ago`
+    if (diffH < 24) return `${diffH}h ago`
+    return `${diffD}d ago`
+  }
+
   const handleConvertToTicket = async (leadId: string) => {
     try {
       const response = await fetch(`${API_URL}/leads/${leadId}/convert-to-ticket`, {
@@ -258,31 +272,40 @@ export default function SuperAdminLeadsPage() {
           </div>
         </div>
 
-        {/* Filters */}
+        {/* Leads: Filters + List/Grid toggle */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <Input
-                placeholder="Search by name, phone, or transcript..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1"
-              />
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle>Call Leads ({filteredLeads.length})</CardTitle>
+                <CardDescription>All incoming call leads from Zoronal across all tenants</CardDescription>
+              </div>
+              <div className="flex items-center gap-1 border border-border rounded-xl p-1 w-fit">
+                <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-lg" onClick={() => setViewMode("list")} title="List view">
+                  <LayoutList className="h-4 w-4" />
+                </Button>
+                <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-lg" onClick={() => setViewMode("grid")} title="Card view">
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-4 flex-wrap">
+              <Input placeholder="Search by name, phone, or transcript..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="flex-1 min-w-[200px] rounded-xl" />
               <Select value={tenantFilter} onValueChange={setTenantFilter}>
-                <SelectTrigger className="w-full md:w-[180px]">
+                <SelectTrigger className="w-full md:w-[180px] rounded-xl">
                   <SelectValue placeholder="Tenant" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Tenants</SelectItem>
                   {tenants.map((tenant) => (
-                    <SelectItem key={tenant._id || tenant.id} value={tenant._id || tenant.id}>
-                      {tenant.name}
-                    </SelectItem>
+                    <SelectItem key={tenant._id || tenant.id} value={tenant._id || tenant.id}>{tenant.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-[180px]">
+                <SelectTrigger className="w-full md:w-[180px] rounded-xl">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -294,7 +317,7 @@ export default function SuperAdminLeadsPage() {
                 </SelectContent>
               </Select>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-full md:w-[180px]">
+                <SelectTrigger className="w-full md:w-[180px] rounded-xl">
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -305,104 +328,89 @@ export default function SuperAdminLeadsPage() {
                 </SelectContent>
               </Select>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Leads List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Call Leads ({filteredLeads.length})</CardTitle>
-            <CardDescription>All incoming call leads from Zoronal across all tenants</CardDescription>
-          </CardHeader>
-          <CardContent>
             {loading ? (
               <div className="text-center py-8 text-muted-foreground">Loading leads...</div>
             ) : filteredLeads.length === 0 ? (
-              <div className="text-center py-8">
+              <div className="text-center py-12 rounded-2xl bg-muted/30 border border-dashed border-border">
                 <Phone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium mb-2">No leads yet</h3>
                 <p className="text-muted-foreground">Leads will appear here once calls are received</p>
               </div>
+            ) : viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredLeads.map((lead, index) => {
+                  const initial = (lead.callerName || "U").charAt(0).toUpperCase()
+                  const colors = ["bg-violet-500", "bg-pink-500", "bg-sky-500", "bg-emerald-500"]
+                  const avatarColor = colors[index % colors.length]
+                  return (
+                    <button
+                      type="button"
+                      key={lead._id}
+                      className="text-left rounded-2xl border border-border/60 bg-card p-4 shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 hover:border-primary/20 transition-all duration-200 ease-out"
+                      onClick={() => { setSelectedLead(lead); setModalOpen(true) }}
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <span className="font-mono text-sm font-bold text-foreground">{lead.leadId}</span>
+                        <div className="flex gap-1.5 flex-shrink-0 flex-wrap justify-end">
+                          <Badge className={getTypeColor(lead.type)}>{lead.type.replace("-", " ")}</Badge>
+                          <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
+                          {lead.tenantId && <Badge variant="outline" className="text-xs">{(lead.tenantId as any).name}</Badge>}
+                          {lead.ticketCreated && <Badge className="bg-green-500/20 text-green-400 text-xs">Ticket</Badge>}
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">{lead.source || "Call"} • {timeAgo(lead.createdAt)}</p>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 ${avatarColor}`}>{initial}</div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-foreground truncate">{lead.callerName || "Unknown"}</p>
+                          <p className="text-xs text-muted-foreground truncate">{lead.callerPhone || lead.callerEmail || "No contact"}</p>
+                        </div>
+                      </div>
+                      {lead.callDuration && <p className="text-xs text-muted-foreground mb-1"><Clock className="h-3 w-3 inline mr-1" />{formatDuration(lead.callDuration)}</p>}
+                      {lead.callTranscript && <p className="text-xs text-foreground line-clamp-2 mt-2">{lead.callTranscript.substring(0, 80)}...</p>}
+                      {lead.analysisResult?.intent && <p className="text-xs text-muted-foreground mt-2">Intent: {lead.analysisResult.intent}</p>}
+                    </button>
+                  )
+                })}
+              </div>
             ) : (
-              <div className="space-y-3">
-                {filteredLeads.map((lead) => (
-                  <div
-                    key={lead._id}
-                    className="flex items-start justify-between p-4 rounded-lg border border-border hover:bg-accent/5 transition-colors cursor-pointer"
-                    onClick={() => {
-                      setSelectedLead(lead)
-                      setModalOpen(true)
-                    }}
-                  >
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-sm font-semibold text-accent">{lead.leadId}</span>
-                        <Badge className={getTypeColor(lead.type)}>{lead.type.replace("-", " ")}</Badge>
-                        <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
-                        {lead.tenantId && (
-                          <Badge variant="outline">
-                            {(lead.tenantId as any).name || "Unknown Tenant"}
-                          </Badge>
-                        )}
-                        {lead.ticketCreated && (
-                          <Badge className="bg-green-500/20 text-green-400">Ticket Created</Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm">
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">{lead.callerName || "Unknown"}</span>
-                        </div>
-                        {lead.callerPhone && (
-                          <div className="flex items-center gap-1">
-                            <Phone className="h-4 w-4 text-muted-foreground" />
-                            <span>{lead.callerPhone}</span>
-                          </div>
-                        )}
-                        {lead.callDuration && (
-                          <div className="flex items-center gap-1">
-                            <span>{formatDuration(lead.callDuration)}</span>
-                          </div>
-                        )}
-                        {lead.callTimestamp && (
-                          <span className="text-muted-foreground">
-                            {new Date(lead.callTimestamp).toLocaleString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        )}
-                      </div>
-                      {lead.callTranscript && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {lead.callTranscript.substring(0, 150)}...
-                        </p>
-                      )}
-                      {lead.analysisResult && (
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="text-muted-foreground">Analysis:</span>
-                          <span className="font-medium">{lead.analysisResult.intent}</span>
-                          <span className="text-muted-foreground">
-                            ({Math.round(lead.analysisResult.confidence * 100)}% confidence)
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {lead.callRecordingUrl && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          window.open(lead.callRecordingUrl, "_blank")
-                        }}
-                      >
-                        <Phone className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
+              <div className="rounded-2xl border border-border/60 bg-card shadow-[var(--card-shadow)] overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="text-left py-3 px-4 font-semibold text-foreground">Lead ID</th>
+                        <th className="text-left py-3 px-4 font-semibold text-foreground">Subject / Source</th>
+                        <th className="text-left py-3 px-4 font-semibold text-foreground">Customer</th>
+                        <th className="text-left py-3 px-4 font-semibold text-foreground">Tenant</th>
+                        <th className="text-left py-3 px-4 font-semibold text-foreground">Status</th>
+                        <th className="text-left py-3 px-4 font-semibold text-foreground">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredLeads.map((lead) => (
+                        <tr key={lead._id} className="border-b border-border/60 hover:bg-accent/20 transition-colors cursor-pointer" onClick={() => { setSelectedLead(lead); setModalOpen(true) }}>
+                          <td className="py-3 px-4 font-mono font-semibold text-foreground">{lead.leadId}</td>
+                          <td className="py-3 px-4">
+                            <p className="font-semibold text-foreground">{lead.source || "Call"}</p>
+                            <p className="text-xs text-muted-foreground">{lead.type.replace("-", " ")} • {timeAgo(lead.createdAt)}</p>
+                          </td>
+                          <td className="py-3 px-4">
+                            <p className="font-semibold text-foreground">{lead.callerName || "Unknown"}</p>
+                            <p className="text-xs text-muted-foreground">{lead.callerPhone || lead.callerEmail || "—"}</p>
+                          </td>
+                          <td className="py-3 px-4 text-muted-foreground">{(lead.tenantId as any)?.name || "—"}</td>
+                          <td className="py-3 px-4">
+                            <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
+                            {lead.ticketCreated && <Badge className="ml-1 bg-green-500/20 text-green-400 text-xs">Ticket</Badge>}
+                          </td>
+                          <td className="py-3 px-4 text-muted-foreground">{timeAgo(lead.createdAt)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </CardContent>

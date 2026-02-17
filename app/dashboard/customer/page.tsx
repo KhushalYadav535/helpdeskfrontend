@@ -1,12 +1,12 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Ticket, AlertCircle, Settings, Plus, Clock, CheckCircle2, MoreVertical } from "lucide-react"
+import { Ticket, AlertCircle, Settings, Plus, Clock, CheckCircle2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { TicketListWithSearch } from "@/components/tickets/ticket-list-with-search"
 
 export default function CustomerDashboard() {
   const sidebarItems = [
@@ -17,60 +17,29 @@ export default function CustomerDashboard() {
   ]
 
   const [myTickets] = useState([
-    {
-      id: "TKT-4001",
-      title: "Cannot reset password",
-      status: "In Progress",
-      priority: "High",
-      created: "2025-10-31",
-      updated: "2025-10-31",
-      responses: 3,
-    },
-    {
-      id: "TKT-4002",
-      title: "Billing inquiry about subscription",
-      status: "Resolved",
-      priority: "Medium",
-      created: "2025-10-28",
-      updated: "2025-10-29",
-      responses: 2,
-    },
-    {
-      id: "TKT-4003",
-      title: "How to integrate API",
-      status: "In Progress",
-      priority: "Low",
-      created: "2025-10-25",
-      updated: "2025-10-31",
-      responses: 5,
-    },
+    { id: "TKT-4001", title: "Cannot reset password", status: "In Progress", priority: "High", created: "2025-10-31", updated: "2025-10-31", responses: 3 },
+    { id: "TKT-4002", title: "Billing inquiry about subscription", status: "Resolved", priority: "Medium", created: "2025-10-28", updated: "2025-10-29", responses: 2 },
+    { id: "TKT-4003", title: "How to integrate API", status: "In Progress", priority: "Low", created: "2025-10-25", updated: "2025-10-31", responses: 5 },
   ])
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Open":
-        return "bg-blue-500/20 text-blue-400"
-      case "In Progress":
-        return "bg-purple-500/20 text-purple-400"
-      case "Resolved":
-        return "bg-green-500/20 text-green-400"
-      case "Closed":
-        return "bg-gray-500/20 text-gray-400"
-      default:
-        return "bg-gray-500/20 text-gray-400"
-    }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "High":
-        return "bg-orange-500/20 text-orange-400"
-      case "Medium":
-        return "bg-yellow-500/20 text-yellow-400"
-      default:
-        return "bg-green-500/20 text-green-400"
-    }
-  }
+  const ticketsForList = useMemo(() =>
+    myTickets.map((t) => ({
+      ticketId: t.id,
+      id: t.id,
+      title: t.title,
+      subject: t.title,
+      description: "",
+      status: t.status,
+      priority: t.priority,
+      customer: "Me",
+      created: t.created,
+      createdAt: t.created,
+      updated: t.updated,
+      updatedAt: t.updated,
+      responses: t.responses,
+    })),
+    [myTickets]
+  )
 
   return (
     <DashboardLayout
@@ -144,48 +113,14 @@ export default function CustomerDashboard() {
           </Card>
         </div>
 
-        {/* My Tickets */}
+        {/* My Tickets – Card & List view */}
         <Card>
           <CardHeader>
             <CardTitle>My Tickets</CardTitle>
             <CardDescription>Your submitted support tickets</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {myTickets.map((ticket) => (
-                <div
-                  key={ticket.id}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent/5 transition-colors"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-mono text-sm font-semibold text-accent">{ticket.id}</span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(ticket.status)}`}>
-                        {ticket.status}
-                      </span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
-                        {ticket.priority}
-                      </span>
-                    </div>
-                    <p className="font-medium">{ticket.title}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Created {ticket.created} • {ticket.responses} responses
-                    </p>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Add Comment</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
+            <TicketListWithSearch tickets={ticketsForList} />
           </CardContent>
         </Card>
 

@@ -132,13 +132,15 @@ export default function AgentDashboard() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "Critical":
-        return "bg-red-500/20 text-red-400"
+        return "bg-red-500/90 text-white"
       case "High":
-        return "bg-orange-500/20 text-orange-400"
+        return "bg-orange-400/90 text-white"
       case "Medium":
-        return "bg-yellow-500/20 text-yellow-400"
+        return "bg-amber-400/90 text-white"
+      case "Low":
+        return "bg-green-500/90 text-white"
       default:
-        return "bg-green-500/20 text-green-400"
+        return "bg-amber-400/90 text-white"
     }
   }
 
@@ -253,24 +255,26 @@ export default function AgentDashboard() {
             {loading ? (
               <div className="text-center py-8 text-muted-foreground">Loading tickets...</div>
             ) : myTickets.length === 0 ? (
-              <div className="text-center py-8">
-                <Ticket className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No tickets assigned yet</h3>
-                <p className="text-muted-foreground">You'll see tickets here once they're assigned to you</p>
+              <div className="text-center py-12">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 mb-4">
+                  <Ticket className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No tickets assigned yet</h3>
+                <p className="text-muted-foreground text-sm max-w-sm mx-auto">You'll see tickets here once they're assigned to you</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {myTickets.map((ticket) => (
                   <div
                     key={ticket._id || ticket.id}
-                    className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-accent/5 transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-4 rounded-2xl border border-border/60 bg-card shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] hover:-translate-y-0.5 hover:border-primary/20 transition-all duration-200 ease-out cursor-pointer"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-mono text-sm font-semibold text-accent">
+                        <span className="font-mono text-sm font-semibold text-foreground">
                           {ticket.ticketId || ticket.id}
                         </span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
                           {ticket.priority}
                         </span>
                       </div>
