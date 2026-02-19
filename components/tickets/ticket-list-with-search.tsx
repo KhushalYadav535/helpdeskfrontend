@@ -191,10 +191,9 @@ export function TicketListWithSearch({ tickets, onTicketUpdated }: TicketListPro
             const ticketId = ticket.ticketId || ticket.id || (ticket._id ? ticket._id.toString() : "")
             const uniqueKey = ticket._id?.toString() || ticket.id || ticket.ticketId || `ticket-${index}`
             const created = ticket.created || ticket.createdAt || ""
-            const sla = slaLabel(created, ticket.status || "Open")
-            const initial = (ticket.customer || "U").charAt(0).toUpperCase()
-            const colors = ["bg-violet-500", "bg-pink-500", "bg-sky-500", "bg-emerald-500"]
-            const avatarColor = colors[index % colors.length]
+            const dateCreated = created
+              ? new Date(created).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+              : "—"
             return (
               <button
                 type="button"
@@ -205,29 +204,17 @@ export function TicketListWithSearch({ tickets, onTicketUpdated }: TicketListPro
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <span className="font-mono text-sm font-bold text-foreground">{ticketId}</span>
                   <div className="flex gap-1.5 flex-shrink-0">
-                    <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-medium", priorityColor[(ticket.priority || "Medium") as string] || priorityColor.Medium)}>
-                      {ticket.priority || "Medium"}
-                    </span>
                     <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-medium", statusColor[(ticket.status || "Open") as string] || statusColor.Open)}>
                       {ticket.status || "Open"}
                     </span>
+                    <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-medium", priorityColor[(ticket.priority || "Medium") as string] || priorityColor.Medium)}>
+                      {ticket.priority || "Medium"}
+                    </span>
                   </div>
                 </div>
-                <p className="text-sm font-bold text-foreground mb-0.5">{ticket.title || ticket.subject || "No title"}</p>
-                <p className="text-xs text-muted-foreground mb-3">{(ticket.tenantId as any)?.name || "—"} • Opened {timeAgo(created)}</p>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0", avatarColor)}>
-                    {initial}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{ticket.customer || "Unknown"}</p>
-                    <p className="text-xs text-muted-foreground truncate">{(ticket as any).customerEmail || "No email provided"}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground mb-2">{timeAgo(created)}</p>
-                <p className={cn("text-xs font-medium mb-2", sla.isOverdue ? "text-red-600" : "text-green-600")}>{sla.text}</p>
-                <p className="text-xs text-foreground line-clamp-2">{(ticket.description || ticket.title || "").slice(0, 80)}...</p>
-                <p className="text-xs text-muted-foreground mt-2">{ticketId}</p>
+                <p className="text-sm font-bold text-foreground mb-1 truncate">{ticket.title || ticket.subject || "No title"}</p>
+                <p className="text-sm text-muted-foreground mb-2 truncate">{ticket.customer || "Unknown"}</p>
+                <p className="text-xs text-muted-foreground">{dateCreated}</p>
               </button>
             )
           })}

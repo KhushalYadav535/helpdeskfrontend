@@ -46,6 +46,7 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
   const [reopening, setReopening] = useState(false)
   const [canReopen, setCanReopen] = useState(false)
   const [canAssign, setCanAssign] = useState(false)
+  const [canCloseTicket, setCanCloseTicket] = useState(false)
   const [agentLevel, setAgentLevel] = useState<string | null>(null)
   const [comments, setComments] = useState<any[]>([])
   const [loadingComments, setLoadingComments] = useState(false)
@@ -62,17 +63,19 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
       if (!user) {
         setCanReopen(false)
         setCanAssign(false)
+        setCanCloseTicket(false)
         return
       }
 
-      // Tenant Admin or Super Admin can reopen and assign/transfer
+      // Tenant Admin or Super Admin can reopen, assign/transfer, and close tickets
       if (user.role === "tenant-admin" || user.role === "super-admin") {
         setCanReopen(true)
         setCanAssign(true)
+        setCanCloseTicket(true)
         return
       }
 
-      // For agents, check if they are supervisor
+      // For agents: only supervisor can reopen, assign/transfer, and close tickets
       if (user.role === "agent") {
         try {
           const response = await fetch(`${API_URL}/agents${user.tenantId ? `?tenantId=${user.tenantId}` : ''}`, {
@@ -84,14 +87,17 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
             if (agent) {
               const level = agent.agentLevel || "agent"
               setAgentLevel(level)
-              setCanReopen(level === "supervisor")
-              setCanAssign(level === "supervisor")
+              const isSupervisor = level === "supervisor"
+              setCanReopen(isSupervisor)
+              setCanAssign(isSupervisor)
+              setCanCloseTicket(isSupervisor)
             }
           }
         } catch (error) {
           console.error("Error checking agent level:", error)
           setCanReopen(false)
           setCanAssign(false)
+          setCanCloseTicket(false)
         }
       }
     }
@@ -356,18 +362,19 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
   return (
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl shadow-xl border-border/60">
+      <DialogContent className="!fixed !inset-0 !top-0 !left-0 !right-0 !bottom-0 !w-screen !h-screen !max-w-none !translate-x-0 !translate-y-0 !rounded-none overflow-y-auto p-4 md:p-6">
+        <div className="w-full max-w-5xl mx-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">{ticket.id}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
-            <h3 className="font-semibold text-lg mb-2">{ticket.title}</h3>
+            <h3 className="font-semibold text-lg mb-1">{ticket.title}</h3>
             <p className="text-sm text-muted-foreground">{ticket.description}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <p className="text-xs text-muted-foreground">Priority</p>
               <Badge className={`mt-1 ${priorityColor[ticket.priority as keyof typeof priorityColor]}`}>
@@ -446,8 +453,8 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
               <TabsTrigger value="details">Details</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="comments" className="space-y-4">
-              <div className="space-y-4 max-h-64 overflow-y-auto">
+            <TabsContent value="comments" className="space-y-3">
+              <div className="space-y-3 max-h-48 overflow-y-auto min-h-20">
                 {loadingComments ? (
                   <p className="text-sm text-muted-foreground text-center py-4">Loading comments...</p>
                 ) : comments.length === 0 ? (
@@ -481,7 +488,7 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   className="w-full p-2 text-sm border rounded-md"
-                  rows={3}
+                  rows={2}
                 />
                 <Button onClick={handleAddComment} className="w-full">
                   Add Comment
@@ -528,7 +535,7 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
             </TabsContent>
           </Tabs>
 
-          <div className="pt-2 space-y-2">
+          <div className="pt-1 space-y-2">
             {ticket.status === "Closed" ? (
               // Closed tickets: Only reopen option (if permission)
               canReopen ? (
@@ -565,14 +572,16 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
                   </div>
                 )}
                 <div className="flex gap-2">
-                  <Button
-                    onClick={handleCloseTicket}
-                    disabled={closing}
-                    className="flex-1"
-                    variant="default"
-                  >
-                    {closing ? "Closing..." : "Close Ticket"}
-                  </Button>
+                  {canCloseTicket && (
+                    <Button
+                      onClick={handleCloseTicket}
+                      disabled={closing}
+                      className="flex-1"
+                      variant="default"
+                    >
+                      {closing ? "Closing..." : "Close Ticket"}
+                    </Button>
+                  )}
                   {canReopen && (
                     <Button
                       onClick={handleReopenTicket}
@@ -586,7 +595,7 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
                 </div>
               </div>
             ) : (
-              // Open/In Progress tickets: Can be resolved or closed
+              // Open/In Progress tickets: Can be resolved or closed (close only for Supervisor+)
               <div className="flex gap-2">
                 <Button
                   onClick={handleResolveTicket}
@@ -596,17 +605,20 @@ export function TicketDetailModal({ ticket, open, onOpenChange, onTicketUpdated 
                 >
                   {resolving ? "Resolving..." : "Resolve Ticket"}
                 </Button>
-                <Button
-                  onClick={handleCloseTicket}
-                  disabled={closing}
-                  className="flex-1"
-                  variant="outline"
-                >
-                  {closing ? "Closing..." : "Close Ticket"}
-                </Button>
+                {canCloseTicket && (
+                  <Button
+                    onClick={handleCloseTicket}
+                    disabled={closing}
+                    className="flex-1"
+                    variant="outline"
+                  >
+                    {closing ? "Closing..." : "Close Ticket"}
+                  </Button>
+                )}
               </div>
             )}
           </div>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
