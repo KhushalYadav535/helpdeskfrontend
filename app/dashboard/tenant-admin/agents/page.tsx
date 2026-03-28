@@ -40,6 +40,11 @@ export default function AgentsPage() {
   })
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [workloadDialogOpen, setWorkloadDialogOpen] = useState(false)
+  const [workloadAgent, setWorkloadAgent] = useState<any>(null)
+  const [maxTicketsInput, setMaxTicketsInput] = useState("15")
+  const [workloadError, setWorkloadError] = useState("")
+  const [workloadSaving, setWorkloadSaving] = useState(false)
 
   const sidebarItems = [
     { label: "Overview", href: "/dashboard/tenant-admin", icon: <BarChart3 className="h-5 w-5" /> },
@@ -117,6 +122,57 @@ export default function AgentsPage() {
       setError(err.message || "Failed to create agent")
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const openWorkloadEditor = (agent: any) => {
+    setWorkloadAgent(agent)
+    setMaxTicketsInput(String(agent.maxTicketsPerDay ?? 15))
+    setWorkloadError("")
+    setWorkloadDialogOpen(true)
+  }
+
+  const saveWorkload = async () => {
+    if (!workloadAgent) return
+    const n = parseInt(maxTicketsInput, 10)
+    if (isNaN(n) || n < 1) {
+      setWorkloadError("Max tickets must be at least 1.")
+      return
+    }
+    if (n > 999) {
+      setWorkloadError("Maximum value is 999.")
+      return
+    }
+    setWorkloadSaving(true)
+    setWorkloadError("")
+    try {
+      const id = workloadAgent.id || workloadAgent._id
+      const res = await fetch(`${API_URL}/agents/${id}`, {
+        method: "PUT",
+        headers: getHeaders(true),
+        body: JSON.stringify({ maxTicketsPerDay: n }),
+      })
+      const json = await res.json()
+      if (res.status === 403) {
+        setWorkloadError(json.error || "Not allowed to update this setting.")
+        return
+      }
+      if (!json.success) {
+        throw new Error(json.error || "Update failed")
+      }
+      const agentsResponse = await fetch(`${API_URL}/agents?tenantId=${user!.tenantId}`, {
+        headers: getHeaders(true),
+      })
+      const agentsResult = await agentsResponse.json()
+      if (agentsResult.success && agentsResult.data) {
+        setAgents(agentsResult.data)
+      }
+      setWorkloadDialogOpen(false)
+      setWorkloadAgent(null)
+    } catch (e: any) {
+      setWorkloadError(e.message || "Failed to save")
+    } finally {
+      setWorkloadSaving(false)
     }
   }
 
@@ -320,6 +376,7 @@ export default function AgentsPage() {
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Assigned</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Resolved</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Rating</th>
+                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">Max/day</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Actions</th>
                     </tr>
                   </thead>
@@ -345,6 +402,7 @@ export default function AgentsPage() {
                         <td className="py-3 px-4 text-muted-foreground">{agent.ticketsAssigned || 0}</td>
                         <td className="py-3 px-4 text-muted-foreground">{agent.resolved || 0}</td>
                         <td className="py-3 px-4 text-muted-foreground">{agent.satisfaction || 0} ⭐</td>
+                        <td className="py-3 px-4 text-muted-foreground">{agent.maxTicketsPerDay ?? 15}</td>
                         <td className="py-3 px-4">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -353,9 +411,9 @@ export default function AgentsPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openWorkloadEditor(agent)}>
                                 <Edit2 className="h-4 w-4 mr-2" />
-                                Edit
+                                Edit max tickets / day
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 className="text-destructive"
@@ -375,6 +433,41 @@ export default function AgentsPage() {
             )}
           </CardContent>
         </Card>
+
+        <Dialog open={workloadDialogOpen} onOpenChange={setWorkloadDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Max tickets per day</DialogTitle>
+              <DialogDescription>
+                Set the daily ticket cap for {workloadAgent?.name || "this agent"}. Only Tenant Admins can change this value.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2 py-2">
+              {workloadError && (
+                <p className="text-sm text-destructive" role="alert">
+                  {workloadError}
+                </p>
+              )}
+              <Label htmlFor="max-tickets">Max Tickets Per Day</Label>
+              <Input
+                id="max-tickets"
+                type="number"
+                min={1}
+                max={999}
+                value={maxTicketsInput}
+                onChange={(e) => setMaxTicketsInput(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setWorkloadDialogOpen(false)} disabled={workloadSaving}>
+                Cancel
+              </Button>
+              <Button onClick={() => void saveWorkload()} disabled={workloadSaving}>
+                {workloadSaving ? "Saving…" : "Save"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   )

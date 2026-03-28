@@ -17,6 +17,8 @@ interface DashboardLayoutProps {
   sidebarTitle: string
   userRole: string
   userName?: string
+  userEmail?: string
+  tenantName?: string
   notificationCount?: number
 }
 
@@ -26,6 +28,8 @@ export function DashboardLayout({
   sidebarTitle,
   userRole,
   userName,
+  userEmail,
+  tenantName,
   notificationCount,
 }: DashboardLayoutProps) {
   return (
@@ -36,7 +40,13 @@ export function DashboardLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Navigation */}
-        <TopNav userName={userName} notificationCount={notificationCount} />
+        <TopNav
+          userName={userName}
+          userRole={userRole}
+          userEmail={userEmail}
+          tenantName={tenantName}
+          notificationCount={notificationCount}
+        />
 
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto">

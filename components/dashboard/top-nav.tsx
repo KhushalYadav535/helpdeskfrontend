@@ -1,60 +1,63 @@
 "use client"
 
-import { Bell, Search, User } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { useState } from "react"
+import { Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { NotificationDropdown } from "@/components/notifications/notification-dropdown"
+import { GlobalSearchBar } from "@/components/search/global-search-bar"
+import { UserProfileDropdown } from "@/components/user/user-profile-dropdown"
 
 interface TopNavProps {
   userName?: string
+  userRole?: string
+  userEmail?: string
+  tenantName?: string
   notificationCount?: number
 }
 
-export function TopNav({ userName = "User", notificationCount = 0 }: TopNavProps) {
+export function TopNav({
+  userName = "User",
+  userRole = "agent",
+  userEmail,
+  tenantName,
+  notificationCount = 0,
+}: TopNavProps) {
   const [isSearchActive, setIsSearchActive] = useState(false)
 
   return (
     <header className="sticky top-0 z-20 bg-card/95 backdrop-blur border-b border-border">
       <div className="flex items-center justify-between h-16 px-4 sm:px-6">
-        {/* Search Bar - TICKLY-style rounded */}
-        <div className="flex-1 max-w-md">
-          <div className="relative hidden sm:flex">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input type="search" placeholder="Search..." className="pl-10 h-10 rounded-xl bg-input border-border" />
-          </div>
-          <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setIsSearchActive(!isSearchActive)}>
-            <Search className="h-5 w-5" />
-          </Button>
+        {/* Search Bar (UIX-004) */}
+        <div className="hidden sm:block">
+          <GlobalSearchBar />
         </div>
+        <Button variant="ghost" size="icon" className="sm:hidden" onClick={() => setIsSearchActive(!isSearchActive)}>
+          <Search className="h-5 w-5" />
+        </Button>
 
         {/* Right Section */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative flex-shrink-0 rounded-xl hover:bg-accent/50">
-            <Bell className="h-5 w-5" />
-            {notificationCount > 0 && (
-              <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
-                {notificationCount > 9 ? "9+" : notificationCount}
-              </span>
-            )}
-          </Button>
+          {/* Notifications (UIX-003) */}
+          <NotificationDropdown />
 
-          {/* User Profile */}
-          <Button variant="ghost" className="gap-2 px-2 sm:px-3 min-w-0 rounded-xl hover:bg-accent/50">
-            <User className="h-5 w-5 flex-shrink-0" />
-            <span className="hidden sm:inline text-sm truncate max-w-[100px] lg:max-w-[150px]">{userName}</span>
-          </Button>
+          {/* User Profile (UIX-005) */}
+          <UserProfileDropdown
+            userName={userName}
+            userRole={userRole}
+            userEmail={userEmail}
+            tenantName={tenantName}
+          />
         </div>
       </div>
 
-      {/* Mobile Search */}
+      {/* Mobile Search — same live search as desktop (UIX-004) */}
       {isSearchActive && (
-        <div className="sm:hidden px-4 pb-4">
-          <Input type="search" placeholder="Search..." className="w-full h-10 bg-input border-border" autoFocus />
+        <div className="sm:hidden px-4 pb-4 border-t border-border bg-card/95">
+          <GlobalSearchBar />
         </div>
       )}
     </header>

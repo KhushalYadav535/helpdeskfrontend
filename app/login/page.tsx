@@ -93,7 +93,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
-                  <Link href="/forgot-password" className="text-xs text-accent hover:text-accent/80">
+                  <Link href="/forgot-password" className="text-xs text-primary hover:text-primary/80 font-medium">
                     Forgot password?
                   </Link>
                 </div>
@@ -113,27 +113,9 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" disabled>
-                Google
-              </Button>
-              <Button variant="outline" disabled>
-                GitHub
-              </Button>
-            </div>
-
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Don't have an account? </span>
-              <Link href="/signup" className="text-accent font-medium hover:text-accent/80">
+              <Link href="/signup" className="text-primary font-medium hover:text-primary/80">
                 Sign up
               </Link>
             </div>

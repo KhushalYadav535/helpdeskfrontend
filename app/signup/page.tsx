@@ -80,7 +80,7 @@ export default function SignupPage() {
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent" />
-            <span className="font-bold text-lg">Helpdesk Pro</span>
+            <span className="font-bold text-lg">Rezolv<span className="text-primary">X</span></span>
           </div>
         </div>
 
@@ -168,11 +168,11 @@ export default function SignupPage() {
                 />
                 <label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer">
                   I agree to the{" "}
-                  <Link href="#" className="text-accent hover:text-accent/80">
+                  <Link href="/terms" className="text-primary hover:text-primary/80 font-medium">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link href="#" className="text-accent hover:text-accent/80">
+                  <Link href="/privacy" className="text-primary hover:text-primary/80 font-medium">
                     Privacy Policy
                   </Link>
                 </label>
@@ -184,27 +184,9 @@ export default function SignupPage() {
               </Button>
             </form>
 
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or signup with</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" disabled>
-                Google
-              </Button>
-              <Button variant="outline" disabled>
-                GitHub
-              </Button>
-            </div>
-
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Already have an account? </span>
-              <Link href="/login" className="text-accent font-medium hover:text-accent/80">
+              <Link href="/login" className="text-primary font-medium hover:text-primary/80">
                 Sign in
               </Link>
             </div>
