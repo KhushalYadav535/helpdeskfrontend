@@ -15,10 +15,16 @@ export default function TicketsPage() {
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState(new Date())
 
+  const openTicketCount = tickets.filter((t: any) => t.status === "Open").length
   const sidebarItems = [
     { label: "Overview", href: "/dashboard/tenant-admin", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Agents", href: "/dashboard/tenant-admin/agents", icon: <Users className="h-5 w-5" /> },
-    { label: "Tickets", href: "/dashboard/tenant-admin/tickets", icon: <Ticket className="h-5 w-5" /> },
+    {
+      label: "Tickets",
+      href: "/dashboard/tenant-admin/tickets",
+      icon: <Ticket className="h-5 w-5" />,
+      ...(openTicketCount > 0 ? { badge: openTicketCount } : {}),
+    },
     { label: "Settings", href: "/dashboard/tenant-admin/settings", icon: <Settings className="h-5 w-5" /> },
   ]
 

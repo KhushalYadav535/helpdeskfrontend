@@ -34,7 +34,7 @@ export default function PerformancePage() {
 
   const isSupervisor = agentLevel === "supervisor"
   const sidebarItems = [
-    { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: myTickets.length },
+    { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" /> },
     { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
     ...(isSupervisor ? [{ label: "Team Management", href: "/dashboard/agent/team", icon: <Users className="h-5 w-5" /> }] : []),
@@ -185,7 +185,7 @@ export default function PerformancePage() {
       sidebarItems={sidebarItems}
       userRole="agent"
       userName={user?.name || "Agent"}
-      notificationCount={myTickets.length}
+      notificationCount={0}
     >
       <div className="space-y-6">
         {/* Page Header */}

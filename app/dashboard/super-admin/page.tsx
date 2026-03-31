@@ -55,17 +55,9 @@ export default function SuperAdminDashboard() {
         const tenantsResult = await tenantsResponse.json()
 
         if (tenantsResult.success && tenantsResult.data) {
-          // Fetch ticket counts for each tenant
-          const tenantsWithTickets = await Promise.all(
+          const tenantsWithAgents = await Promise.all(
             tenantsResult.data.map(async (tenant: any) => {
               try {
-                const ticketsResponse = await fetch(`${API_URL}/tickets?tenantId=${tenant._id || tenant.id}`, {
-                  headers: getHeaders(true),
-                })
-                const ticketsResult = await ticketsResponse.json()
-                const ticketCount = ticketsResult.success ? ticketsResult.data.length : 0
-
-                // Fetch agent count for tenant
                 const agentsResponse = await fetch(`${API_URL}/agents?tenantId=${tenant._id || tenant.id}`, {
                   headers: getHeaders(true),
                 })
@@ -75,26 +67,21 @@ export default function SuperAdminDashboard() {
                 return {
                   id: tenant._id || tenant.id,
                   name: tenant.name,
-                  tickets: ticketCount,
                   agents: agentCount,
                   status: tenant.status || "active",
                 }
-              } catch (error) {
+              } catch {
                 return {
                   id: tenant._id || tenant.id,
                   name: tenant.name,
-                  tickets: 0,
                   agents: 0,
                   status: tenant.status || "active",
                 }
               }
-            })
+            }),
           )
 
-          // Sort by ticket count and get top 3
-          const sorted = tenantsWithTickets
-            .sort((a, b) => b.tickets - a.tickets)
-            .slice(0, 3)
+          const sorted = tenantsWithAgents.sort((a, b) => b.agents - a.agents).slice(0, 3)
           setTopTenants(sorted)
         }
       } catch (error) {
@@ -126,8 +113,8 @@ export default function SuperAdminDashboard() {
 
         {/* System Stats */}
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
               <Card key={i}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Loading...</CardTitle>
@@ -140,7 +127,7 @@ export default function SuperAdminDashboard() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Tenants</CardTitle>
@@ -160,17 +147,6 @@ export default function SuperAdminDashboard() {
               <CardContent>
                 <div className="text-2xl font-bold">{tenantStats.totalAgents}</div>
                 <p className="text-xs text-muted-foreground">Across all tenants</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">System Tickets</CardTitle>
-                <Ticket className="h-4 w-4 text-accent" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{tenantStats.totalTickets.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground">All tickets in system</p>
               </CardContent>
             </Card>
 
@@ -217,8 +193,8 @@ export default function SuperAdminDashboard() {
         {/* Tenant Performance */}
         <Card>
           <CardHeader>
-            <CardTitle>Top Tenants by Activity</CardTitle>
-            <CardDescription>Tenants with highest ticket volume</CardDescription>
+            <CardTitle>Top Tenants by Team Size</CardTitle>
+            <CardDescription>Tenants with the most agents</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -234,9 +210,7 @@ export default function SuperAdminDashboard() {
                   >
                     <div>
                       <p className="font-medium">{tenant.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {tenant.agents} agents • {tenant.tickets} tickets
-                      </p>
+                      <p className="text-sm text-muted-foreground">{tenant.agents} agents</p>
                     </div>
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${

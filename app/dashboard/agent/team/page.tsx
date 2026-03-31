@@ -34,7 +34,6 @@ export default function TeamManagementPage() {
   const [agents, setAgents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [tenantName, setTenantName] = useState<string>("")
-  const [myTickets, setMyTickets] = useState<any[]>([])
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [selectedAgent, setSelectedAgent] = useState<any>(null)
   const [formData, setFormData] = useState({
@@ -45,7 +44,7 @@ export default function TeamManagementPage() {
   const [error, setError] = useState("")
 
   const sidebarItems = [
-    { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: myTickets.length },
+    { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" /> },
     { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
     { label: "Team Management", href: "/dashboard/agent/team", icon: <Users className="h-5 w-5" /> },
@@ -86,15 +85,6 @@ export default function TeamManagementPage() {
           setAgents(otherAgents)
         }
 
-        // Fetch my tickets count
-        const ticketsResponse = await fetch(`${API_URL}/tickets?myTickets=true`, {
-          headers: getHeaders(true),
-        })
-        const ticketsResult = await ticketsResponse.json()
-
-        if (ticketsResult.success && ticketsResult.data) {
-          setMyTickets(ticketsResult.data)
-        }
       } catch (error) {
         console.error("Error fetching data:", error)
       } finally {
@@ -203,7 +193,7 @@ export default function TeamManagementPage() {
       sidebarItems={sidebarItems}
       userRole="agent"
       userName={user?.name || "Agent"}
-      notificationCount={myTickets.length}
+      notificationCount={0}
     >
       <div className="space-y-6">
         {/* Page Header */}
@@ -355,8 +345,6 @@ export default function TeamManagementPage() {
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Email</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Level</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">Assigned</th>
-                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">Resolved</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Rating</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Actions</th>
                     </tr>
@@ -380,8 +368,6 @@ export default function TeamManagementPage() {
                             {agent.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-muted-foreground">{agent.ticketsAssigned || 0}</td>
-                        <td className="py-3 px-4 text-muted-foreground">{agent.resolved || 0}</td>
                         <td className="py-3 px-4 text-muted-foreground">{agent.satisfaction || 0} ⭐</td>
                         <td className="py-3 px-4">
                           <DropdownMenu>

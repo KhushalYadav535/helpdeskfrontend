@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Ticket, AlertCircle, Settings, Plus, Clock, CheckCircle2 } from "lucide-react"
+import { Ticket, AlertCircle, Settings, Plus } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -47,7 +47,7 @@ export default function CustomerDashboard() {
       sidebarItems={sidebarItems}
       userRole="customer"
       userName="John Doe"
-      notificationCount={1}
+      notificationCount={0}
     >
       <div className="space-y-6">
         {/* Page Header */}
@@ -62,55 +62,6 @@ export default function CustomerDashboard() {
               New Ticket
             </Button>
           </Link>
-        </div>
-
-        {/* Customer Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
-              <Ticket className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{myTickets.length}</div>
-              <p className="text-xs text-muted-foreground">All time</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Open/In Progress</CardTitle>
-              <AlertCircle className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {myTickets.filter((t) => t.status !== "Resolved" && t.status !== "Closed").length}
-              </div>
-              <p className="text-xs text-muted-foreground">Awaiting response</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Resolved</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{myTickets.filter((t) => t.status === "Resolved" || t.status === "Closed").length}</div>
-              <p className="text-xs text-muted-foreground">Completed</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Response</CardTitle>
-              <Clock className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">4h</div>
-              <p className="text-xs text-muted-foreground">Typical</p>
-            </CardContent>
-          </Card>
         </div>
 
         {/* My Tickets – Card & List view */}

@@ -53,7 +53,7 @@ export default function TicketsPage() {
       sidebarItems={sidebarItems}
       userRole="super-admin"
       userName={user?.name || "Super Admin"}
-      notificationCount={tickets.length}
+      notificationCount={0}
     >
       <div className="space-y-6">
         {/* Page Header */}

@@ -66,7 +66,7 @@ export default function KnowledgeBasePage() {
       sidebarItems={sidebarItems}
       userRole="customer"
       userName="John Doe"
-      notificationCount={1}
+      notificationCount={0}
     >
       <div className="space-y-6">
         {/* Page Header */}

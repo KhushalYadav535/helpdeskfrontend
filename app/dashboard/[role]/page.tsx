@@ -28,7 +28,7 @@ const dashboardConfigs: Record<string, any> = {
   agent: {
     title: "Support Agent",
     sidebarItems: [
-      { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: 5 },
+      { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" /> },
       { label: "All Tickets", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
       { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
       { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
@@ -54,13 +54,15 @@ export default function DashboardPage() {
     return <div>Invalid role</div>
   }
 
+  const showTicketVolumeStats = role === "tenant-admin"
+
   return (
     <DashboardLayout
       sidebarTitle={config.title}
       sidebarItems={config.sidebarItems}
       userRole={role}
       userName="John Doe"
-      notificationCount={3}
+      notificationCount={showTicketVolumeStats ? 3 : 0}
     >
       <div className="space-y-6">
         {/* Page Header */}
@@ -69,40 +71,53 @@ export default function DashboardPage() {
           <p className="text-muted-foreground mt-2">Here's an overview of your helpdesk system</p>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid — ticket volume mock numbers only for Tenant Admin */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
-              <Ticket className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-muted-foreground">+2.5% from last month</p>
-            </CardContent>
-          </Card>
+          {showTicketVolumeStats ? (
+            <>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
+                  <Ticket className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">1,234</div>
+                  <p className="text-xs text-muted-foreground">+2.5% from last month</p>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Resolved</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">847</div>
-              <p className="text-xs text-muted-foreground">68.7% of total</p>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Resolved</CardTitle>
+                  <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">847</div>
+                  <p className="text-xs text-muted-foreground">68.7% of total</p>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending</CardTitle>
-              <AlertCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">156</div>
-              <p className="text-xs text-muted-foreground">12.6% of total</p>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Pending</CardTitle>
+                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">156</div>
+                  <p className="text-xs text-muted-foreground">12.6% of total</p>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            <Card className="md:col-span-2 lg:col-span-3">
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">Ticket analytics</CardTitle>
+                <CardDescription>
+                  Aggregated ticket counts are visible to Tenant Admins only. Use the sidebar to open tickets assigned to you.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          )}
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -128,7 +143,11 @@ export default function DashboardPage() {
                 <div key={i} className="flex gap-4 pb-4 last:pb-0 border-b last:border-0">
                   <div className="h-2 w-2 rounded-full bg-accent mt-2 flex-shrink-0" />
                   <div>
-                    <p className="font-medium text-sm">Ticket #TKT-{1000 + i} has been resolved</p>
+                    <p className="font-medium text-sm">
+                      {showTicketVolumeStats
+                        ? `Ticket #TKT-${1000 + i} has been resolved`
+                        : `Workspace sync completed (${i} of 3)`}
+                    </p>
                     <p className="text-sm text-muted-foreground">2 hours ago</p>
                   </div>
                 </div>

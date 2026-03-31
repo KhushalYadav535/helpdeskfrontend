@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Ticket, BarChart3, TrendingUp, Settings, Clock, CheckCircle2, Users, Plus } from "lucide-react"
+import { Ticket, BarChart3, TrendingUp, Settings, Clock, Users, Plus } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -30,7 +30,7 @@ export default function AgentDashboard() {
         { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
       ]
     : [
-        { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" />, badge: myTickets.length },
+        { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" /> },
         { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
         { label: "Create Ticket", href: "/dashboard/agent/new", icon: <Plus className="h-5 w-5" /> },
         { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
@@ -150,7 +150,7 @@ export default function AgentDashboard() {
       sidebarItems={sidebarItems}
       userRole="agent"
       userName={user?.name || "Agent"}
-      notificationCount={myTickets.length}
+      notificationCount={0}
     >
       <div className="space-y-6">
         {/* Page Header */}
@@ -166,32 +166,8 @@ export default function AgentDashboard() {
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{isManagement ? "Total Tickets" : "Assigned Today"}</CardTitle>
-              <Ticket className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.assigned}</div>
-              <p className="text-xs text-muted-foreground">
-                {isManagement ? "All tenant tickets" : `${stats.assigned - stats.resolved} remaining`}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Resolved Today</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-accent" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.resolved}</div>
-              <p className="text-xs text-muted-foreground">Good job!</p>
-            </CardContent>
-          </Card>
-
+        {/* Stats — ticket volumes are shown only to Tenant Admin */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Avg Response</CardTitle>
@@ -248,7 +224,7 @@ export default function AgentDashboard() {
         {!isManagement && (
         <Card>
           <CardHeader>
-            <CardTitle>My Tickets ({myTickets.length})</CardTitle>
+            <CardTitle>My Tickets</CardTitle>
             <CardDescription>Tickets assigned to you</CardDescription>
           </CardHeader>
           <CardContent>

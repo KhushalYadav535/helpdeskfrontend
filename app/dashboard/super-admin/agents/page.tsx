@@ -397,14 +397,6 @@ function SuperAdminAgentsContent() {
                   <p className="text-sm mt-1 capitalize">{selectedAgent.status}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">Tickets Assigned</Label>
-                  <p className="text-sm mt-1">{selectedAgent.ticketsAssigned || 0}</p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium">Resolved</Label>
-                  <p className="text-sm mt-1">{selectedAgent.resolved || 0}</p>
-                </div>
-                <div>
                   <Label className="text-sm font-medium">Rating</Label>
                   <p className="text-sm mt-1">{selectedAgent.satisfaction || 0} ⭐</p>
                 </div>
@@ -470,8 +462,6 @@ function SuperAdminAgentsContent() {
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Tenant</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Level</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">Assigned</th>
-                      <th className="text-left py-3 px-4 font-medium text-muted-foreground">Resolved</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Rating</th>
                       <th className="text-left py-3 px-4 font-medium text-muted-foreground">Actions</th>
                     </tr>
@@ -498,8 +488,6 @@ function SuperAdminAgentsContent() {
                             {agent.status}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-muted-foreground">{agent.ticketsAssigned || 0}</td>
-                        <td className="py-3 px-4 text-muted-foreground">{agent.resolved || 0}</td>
                         <td className="py-3 px-4 text-muted-foreground">{agent.satisfaction || 0} ⭐</td>
                         <td className="py-3 px-4">
                           <DropdownMenu>
