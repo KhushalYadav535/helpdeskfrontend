@@ -54,7 +54,11 @@ export default function SuperAdminCallHistoryPage() {
 
     try {
       setLoading(true)
-      const response = await fetch(`${API_URL}/leads`, {
+      const params = new URLSearchParams({
+        includeAllTypes: "true",
+      })
+
+      const response = await fetch(`${API_URL}/leads?${params.toString()}`, {
         headers: getHeaders(true),
       })
 

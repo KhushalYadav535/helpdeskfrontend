@@ -50,6 +50,7 @@ export default function TenantCallHistoryPage() {
       setLoading(true)
       const params = new URLSearchParams({
         tenantId: user.tenantId,
+        includeAllTypes: "true",
       })
 
       const response = await fetch(`${API_URL}/leads?${params.toString()}`, {
