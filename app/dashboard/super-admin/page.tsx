@@ -23,7 +23,7 @@ export default function SuperAdminDashboard() {
   const sidebarItems = [
     { label: "Overview", href: "/dashboard/super-admin", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Leads", href: "/dashboard/super-admin/leads", icon: <Phone className="h-5 w-5" /> },
-    { label: "Call History", href: "/dashboard/super-admin/call-history", icon: <Clock className="h-5 w-5" /> },
+    { label: "Call Logs", href: "/dashboard/super-admin/call-logs", icon: <Clock className="h-5 w-5" /> },
     { label: "Tenants", href: "/dashboard/super-admin/tenants", icon: <Building2 className="h-5 w-5" /> },
     { label: "Agents", href: "/dashboard/super-admin/agents", icon: <Users className="h-5 w-5" /> },
     { label: "System Tickets", href: "/dashboard/super-admin/tickets", icon: <Ticket className="h-5 w-5" /> },

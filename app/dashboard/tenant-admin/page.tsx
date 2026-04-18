@@ -28,7 +28,7 @@ export default function TenantAdminDashboard() {
     () => [
       { label: "Overview", href: "/dashboard/tenant-admin", icon: <BarChart3 className="h-5 w-5" /> },
       { label: "Leads", href: "/dashboard/tenant-admin/leads", icon: <Phone className="h-5 w-5" /> },
-      { label: "Call History", href: "/dashboard/tenant-admin/call-history", icon: <Clock className="h-5 w-5" /> },
+      { label: "Call Logs", href: "/dashboard/tenant-admin/call-logs", icon: <Clock className="h-5 w-5" /> },
       { label: "Agents", href: "/dashboard/tenant-admin/agents", icon: <Users className="h-5 w-5" /> },
       {
         label: "Tickets",

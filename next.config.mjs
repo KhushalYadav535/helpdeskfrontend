@@ -6,6 +6,20 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/dashboard/tenant-admin/call-history',
+        destination: '/dashboard/tenant-admin/call-logs',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/super-admin/call-history',
+        destination: '/dashboard/super-admin/call-logs',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     return [
       {
