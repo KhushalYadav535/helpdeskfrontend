@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils"
 
 interface SidebarProps {
-  role: "super-admin" | "tenant-admin" | "agent" | "customer"
+  role: "super-admin" | "tenant-admin" | "agent" | "customer" | "sales-team"
 }
 
 const navigationByRole = {
@@ -48,6 +48,10 @@ const navigationByRole = {
     { label: "My Tickets", href: "/dashboard/customer/tickets", icon: TicketIcon },
     { label: "Messages", href: "/dashboard/customer/messages", icon: MessageSquare },
     { label: "Help", href: "/dashboard/customer/help", icon: Users },
+  ],
+  "sales-team": [
+    { label: "Dashboard", href: "/dashboard/sales-team", icon: LayoutDashboard },
+    { label: "Sales Leads", href: "/dashboard/sales-team/leads", icon: BarChart3 },
   ],
 }
 

@@ -8,7 +8,8 @@ export interface User {
   id: string
   name: string
   email: string
-  role: "super-admin" | "tenant-admin" | "agent" | "customer"
+  role: "super-admin" | "tenant-admin" | "agent" | "customer" | "sales-team"
+  accessRoles?: ("agent" | "sales-team")[]
   avatar?: string
   tenantId?: string
   companyName?: string
@@ -32,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   // Get API URL
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.credibilitycrm.com/api"
 
   // Load user from localStorage on mount
   useEffect(() => {

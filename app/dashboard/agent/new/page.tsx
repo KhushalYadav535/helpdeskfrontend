@@ -25,7 +25,6 @@ export default function AgentNewTicketPage() {
     { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" /> },
     { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Service Requests", href: "/dashboard/agent/tickets/service-requests", icon: <Wrench className="h-5 w-5" /> },
-    { label: "Troubleshooting", href: "/dashboard/agent/tickets/troubleshooting", icon: <Wrench className="h-5 w-5" /> },
     { label: "Create Ticket", href: "/dashboard/agent/new", icon: <Plus className="h-5 w-5" /> },
     { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
     { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
@@ -265,7 +264,7 @@ export default function AgentNewTicketPage() {
                     required
                   >
                     <option value="service-request">Service Request</option>
-                    <option value="troubleshooting">Troubleshooting</option>
+                    <option value="complaint">Complaint</option>
                   </select>
                 </div>
                 <div>

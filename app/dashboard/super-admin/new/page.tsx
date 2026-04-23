@@ -359,7 +359,7 @@ export default function SuperAdminNewTicketPage() {
                     required
                   >
                     <option value="service-request">Service Request</option>
-                    <option value="troubleshooting">Troubleshooting</option>
+                    <option value="complaint">Complaint</option>
                   </select>
                 </div>
                 <div>

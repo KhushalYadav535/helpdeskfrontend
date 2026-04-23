@@ -5,7 +5,7 @@ import { useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 
-const validRoles = ["super-admin", "tenant-admin", "agent", "customer"]
+const validRoles = ["super-admin", "tenant-admin", "agent", "customer", "sales-team"]
 
 export default function DashboardLayout({
   children,
@@ -16,6 +16,8 @@ export default function DashboardLayout({
   const params = useParams()
   const { user, isAuthenticated, loading } = useAuth()
   const role = params?.role as string
+  const hasRoleAccess =
+    user?.role === "super-admin" || user?.role === role || (user?.accessRoles || []).includes(role as any)
 
   useEffect(() => {
     // Wait for auth to load
@@ -39,11 +41,11 @@ export default function DashboardLayout({
     }
 
     // Check if user is accessing correct role dashboard
-    if (user.role !== role && user.role !== "super-admin") {
+    if (!hasRoleAccess) {
       // Super admin can access any dashboard, others should be redirected
       router.push(`/dashboard/${user.role}`)
     }
-  }, [loading, isAuthenticated, user, role, router])
+  }, [loading, isAuthenticated, user, role, router, hasRoleAccess])
 
   // Show loading while checking auth
   if (loading) {
@@ -68,7 +70,7 @@ export default function DashboardLayout({
   }
 
   // Don't render if wrong role (redirect will happen)
-  if (user.role !== role && user.role !== "super-admin") {
+  if (!hasRoleAccess) {
     return null
   }
 

@@ -38,6 +38,8 @@ export default function LoginPage() {
           router.push("/dashboard/tenant-admin")
         } else if (user.role === "agent") {
           router.push("/dashboard/agent")
+        } else if (user.role === "sales-team") {
+          router.push("/dashboard/sales-team")
         } else {
           router.push("/dashboard/customer")
         }

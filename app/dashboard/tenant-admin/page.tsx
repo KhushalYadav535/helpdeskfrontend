@@ -37,7 +37,6 @@ export default function TenantAdminDashboard() {
         ...(ticketStats.open > 0 ? { badge: ticketStats.open } : {}),
       },
       { label: "Service Requests", href: "/dashboard/tenant-admin/tickets/service-requests", icon: <Wrench className="h-5 w-5" /> },
-      { label: "Troubleshooting", href: "/dashboard/tenant-admin/tickets/troubleshooting", icon: <Wrench className="h-5 w-5" /> },
       { label: "Create Ticket", href: "/dashboard/tenant-admin/new", icon: <Plus className="h-5 w-5" /> },
       { label: "Settings", href: "/dashboard/tenant-admin/settings", icon: <Settings className="h-5 w-5" /> },
     ],

@@ -16,7 +16,6 @@ export default function SettingsPage() {
     { label: "Agents", href: "/dashboard/super-admin/agents", icon: <Users className="h-5 w-5" /> },
     { label: "System Tickets", href: "/dashboard/super-admin/tickets", icon: <Ticket className="h-5 w-5" /> },
     { label: "Service Requests", href: "/dashboard/super-admin/tickets/service-requests", icon: <Wrench className="h-5 w-5" /> },
-    { label: "Troubleshooting", href: "/dashboard/super-admin/tickets/troubleshooting", icon: <Wrench className="h-5 w-5" /> },
     { label: "Create Ticket", href: "/dashboard/super-admin/new", icon: <Plus className="h-5 w-5" /> },
     { label: "Settings", href: "/dashboard/super-admin/settings", icon: <Settings className="h-5 w-5" /> },
   ]

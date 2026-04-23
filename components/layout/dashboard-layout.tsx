@@ -6,7 +6,7 @@ import { Header } from "./header"
 
 interface DashboardLayoutProps {
   children: ReactNode
-  role: "super-admin" | "tenant-admin" | "agent" | "customer"
+  role: "super-admin" | "tenant-admin" | "agent" | "customer" | "sales-team"
   title: string
   subtitle?: string
 }

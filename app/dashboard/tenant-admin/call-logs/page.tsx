@@ -47,7 +47,6 @@ export default function TenantCallLogsPage() {
     { label: "Call Logs", href: "/dashboard/tenant-admin/call-logs", icon: <Clock className="h-5 w-5" /> },
     { label: "Tickets", href: "/dashboard/tenant-admin/tickets", icon: <Ticket className="h-5 w-5" /> },
     { label: "Service Requests", href: "/dashboard/tenant-admin/tickets/service-requests", icon: <Wrench className="h-5 w-5" /> },
-    { label: "Troubleshooting", href: "/dashboard/tenant-admin/tickets/troubleshooting", icon: <Wrench className="h-5 w-5" /> },
     { label: "Create Ticket", href: "/dashboard/tenant-admin/new", icon: <Plus className="h-5 w-5" /> },
     { label: "Agents", href: "/dashboard/tenant-admin/agents", icon: <Users className="h-5 w-5" /> },
     { label: "Settings", href: "/dashboard/tenant-admin/settings", icon: <Settings className="h-5 w-5" /> },
