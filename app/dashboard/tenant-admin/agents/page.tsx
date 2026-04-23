@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { BarChart3, Users, Ticket, Settings, Plus, MoreVertical, Edit2, Trash2 } from "lucide-react"
+import { BarChart3, Users, Ticket, Settings, Plus, MoreVertical, Edit2, Trash2, Wrench } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -50,6 +50,9 @@ export default function AgentsPage() {
     { label: "Overview", href: "/dashboard/tenant-admin", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Agents", href: "/dashboard/tenant-admin/agents", icon: <Users className="h-5 w-5" /> },
     { label: "Tickets", href: "/dashboard/tenant-admin/tickets", icon: <Ticket className="h-5 w-5" /> },
+    { label: "Service Requests", href: "/dashboard/tenant-admin/tickets/service-requests", icon: <Wrench className="h-5 w-5" /> },
+    { label: "Troubleshooting", href: "/dashboard/tenant-admin/tickets/troubleshooting", icon: <Wrench className="h-5 w-5" /> },
+    { label: "Create Ticket", href: "/dashboard/tenant-admin/new", icon: <Plus className="h-5 w-5" /> },
     { label: "Settings", href: "/dashboard/tenant-admin/settings", icon: <Settings className="h-5 w-5" /> },
   ]
 

@@ -37,6 +37,7 @@ export default function TenantAdminNewTicketPage() {
     existingCustomerId: "",
     agentId: "",
     subject: "",
+    requestType: "service-request",
     category: "general",
     priority: "medium",
     description: "",
@@ -109,6 +110,9 @@ export default function TenantAdminNewTicketPage() {
         tenantId: user?.tenantId,
         source: "walk-in",
         channel: "walk-in",
+        metadata: {
+          kind: formData.requestType,
+        },
         ...customerData,
       }
 
@@ -286,6 +290,19 @@ export default function TenantAdminNewTicketPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="requestType">Ticket Type *</Label>
+                  <select
+                    id="requestType"
+                    value={formData.requestType}
+                    onChange={(e) => setFormData({ ...formData, requestType: e.target.value })}
+                    className="mt-2 w-full px-3 py-2 rounded-lg border border-border bg-input text-foreground"
+                    required
+                  >
+                    <option value="service-request">Service Request</option>
+                    <option value="troubleshooting">Troubleshooting</option>
+                  </select>
+                </div>
                 <div>
                   <Label htmlFor="category">Category *</Label>
                   <select

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Phone, PhoneCall, Clock, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
+import { Phone, PhoneCall, Clock, ChevronLeft, ChevronRight, RefreshCw, BarChart3, Users, Ticket, Settings, Wrench, Plus } from "lucide-react"
 
 interface CallLogRow {
   _id: string
@@ -42,12 +42,15 @@ export default function TenantCallLogsPage() {
   const [detailOpen, setDetailOpen] = useState(false)
 
   const sidebarItems = [
-    { label: "Overview", href: "/dashboard/tenant-admin", icon: <PhoneCall className="h-5 w-5" /> },
+    { label: "Overview", href: "/dashboard/tenant-admin", icon: <BarChart3 className="h-5 w-5" /> },
     { label: "Leads", href: "/dashboard/tenant-admin/leads", icon: <Phone className="h-5 w-5" /> },
     { label: "Call Logs", href: "/dashboard/tenant-admin/call-logs", icon: <Clock className="h-5 w-5" /> },
-    { label: "Tickets", href: "/dashboard/tenant-admin/tickets", icon: <PhoneCall className="h-5 w-5" /> },
-    { label: "Agents", href: "/dashboard/tenant-admin/agents", icon: <PhoneCall className="h-5 w-5" /> },
-    { label: "Settings", href: "/dashboard/tenant-admin/settings", icon: <PhoneCall className="h-5 w-5" /> },
+    { label: "Tickets", href: "/dashboard/tenant-admin/tickets", icon: <Ticket className="h-5 w-5" /> },
+    { label: "Service Requests", href: "/dashboard/tenant-admin/tickets/service-requests", icon: <Wrench className="h-5 w-5" /> },
+    { label: "Troubleshooting", href: "/dashboard/tenant-admin/tickets/troubleshooting", icon: <Wrench className="h-5 w-5" /> },
+    { label: "Create Ticket", href: "/dashboard/tenant-admin/new", icon: <Plus className="h-5 w-5" /> },
+    { label: "Agents", href: "/dashboard/tenant-admin/agents", icon: <Users className="h-5 w-5" /> },
+    { label: "Settings", href: "/dashboard/tenant-admin/settings", icon: <Settings className="h-5 w-5" /> },
   ]
 
   const fetchCalls = async () => {

@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Building2, Ticket, Settings, BarChart3, Users, Plus, MoreVertical, Edit2, Trash2, Eye } from "lucide-react"
+import { Building2, Ticket, Settings, BarChart3, Users, Plus, MoreVertical, Edit2, Trash2, Eye, Wrench } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -54,6 +54,9 @@ function SuperAdminAgentsContent() {
     { label: "Tenants", href: "/dashboard/super-admin/tenants", icon: <Building2 className="h-5 w-5" /> },
     { label: "Agents", href: "/dashboard/super-admin/agents", icon: <Users className="h-5 w-5" /> },
     { label: "System Tickets", href: "/dashboard/super-admin/tickets", icon: <Ticket className="h-5 w-5" /> },
+    { label: "Service Requests", href: "/dashboard/super-admin/tickets/service-requests", icon: <Wrench className="h-5 w-5" /> },
+    { label: "Troubleshooting", href: "/dashboard/super-admin/tickets/troubleshooting", icon: <Wrench className="h-5 w-5" /> },
+    { label: "Create Ticket", href: "/dashboard/super-admin/new", icon: <Plus className="h-5 w-5" /> },
     { label: "Settings", href: "/dashboard/super-admin/settings", icon: <Settings className="h-5 w-5" /> },
   ]
 

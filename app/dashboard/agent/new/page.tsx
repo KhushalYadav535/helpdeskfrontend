@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardLayout } from "@/components/dashboard/layout"
-import { Ticket, Plus, AlertCircle, Settings } from "lucide-react"
+import { Ticket, Plus, AlertCircle, Settings, Wrench, BarChart3, TrendingUp } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,9 +23,11 @@ export default function AgentNewTicketPage() {
 
   const sidebarItems = [
     { label: "My Tickets", href: "/dashboard/agent", icon: <Ticket className="h-5 w-5" /> },
-    { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <AlertCircle className="h-5 w-5" /> },
+    { label: "Assigned to Me", href: "/dashboard/agent/tickets", icon: <BarChart3 className="h-5 w-5" /> },
+    { label: "Service Requests", href: "/dashboard/agent/tickets/service-requests", icon: <Wrench className="h-5 w-5" /> },
+    { label: "Troubleshooting", href: "/dashboard/agent/tickets/troubleshooting", icon: <Wrench className="h-5 w-5" /> },
     { label: "Create Ticket", href: "/dashboard/agent/new", icon: <Plus className="h-5 w-5" /> },
-    { label: "Performance", href: "/dashboard/agent/performance", icon: <AlertCircle className="h-5 w-5" /> },
+    { label: "Performance", href: "/dashboard/agent/performance", icon: <TrendingUp className="h-5 w-5" /> },
     { label: "Settings", href: "/dashboard/agent/settings", icon: <Settings className="h-5 w-5" /> },
   ]
 
@@ -35,6 +37,7 @@ export default function AgentNewTicketPage() {
     customerPhone: "",
     existingCustomerId: "",
     subject: "",
+    requestType: "service-request",
     category: "general",
     priority: "medium",
     description: "",
@@ -97,6 +100,9 @@ export default function AgentNewTicketPage() {
         tenantId: user?.tenantId,
         source: "walk-in",
         channel: "walk-in",
+        metadata: {
+          kind: formData.requestType,
+        },
         ...customerData,
       }
 
@@ -249,6 +255,19 @@ export default function AgentNewTicketPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="requestType">Ticket Type *</Label>
+                  <select
+                    id="requestType"
+                    value={formData.requestType}
+                    onChange={(e) => setFormData({ ...formData, requestType: e.target.value })}
+                    className="mt-2 w-full px-3 py-2 rounded-lg border border-border bg-input text-foreground"
+                    required
+                  >
+                    <option value="service-request">Service Request</option>
+                    <option value="troubleshooting">Troubleshooting</option>
+                  </select>
+                </div>
                 <div>
                   <Label htmlFor="category">Category *</Label>
                   <select
